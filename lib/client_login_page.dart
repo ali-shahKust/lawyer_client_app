@@ -1,6 +1,12 @@
+import 'dart:collection';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lawyer_client_app/client_signup_page.dart';
 import 'package:lawyer_client_app/constant.dart';
+
+import 'client_session_page.dart';
+import 'homepage.dart';
 
 class Client_Login extends StatefulWidget {
   @override
@@ -8,6 +14,13 @@ class Client_Login extends StatefulWidget {
 }
 
 class _Client_LoginState extends State<Client_Login> {
+
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  String _email, _password;
+  final _emailcontroller = TextEditingController();
+  final _passwordcontroller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,6 +69,10 @@ class _Client_LoginState extends State<Client_Login> {
               elevation: 2.0,
               borderRadius: BorderRadius.all(Radius.circular(10)),
               child: TextField(
+
+                keyboardType: TextInputType.emailAddress,
+                controller: _emailcontroller,
+
                 onChanged: (String value) {},
                 cursorColor: Constant.appColor,
                 decoration: InputDecoration(
@@ -83,6 +100,9 @@ class _Client_LoginState extends State<Client_Login> {
               elevation: 2.0,
               borderRadius: BorderRadius.all(Radius.circular(10)),
               child: TextField(
+
+                obscureText: true,
+                controller: _passwordcontroller,
                 onChanged: (String value) {},
                 cursorColor: Constant.appColor,
                 decoration: InputDecoration(
@@ -118,7 +138,9 @@ class _Client_LoginState extends State<Client_Login> {
                         fontWeight: FontWeight.w700,
                         fontSize: 18),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    signIn();
+                  },
                 ),
               )),
           SizedBox(
@@ -167,6 +189,21 @@ class _Client_LoginState extends State<Client_Login> {
         ],
       ),
     );
+  }
+
+  Future<void> signIn() async {
+
+    _email = _emailcontroller.text;
+    _password = _passwordcontroller.text;
+
+    HashMap mMap = new HashMap<String, String>();
+
+    try{
+      await FirebaseAuth.instance.signInWithEmailAndPassword(email:_email , password: _password);
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Client_HomePage()));
+    }catch(e){
+      print(e.message);
+    }
   }
 
 }

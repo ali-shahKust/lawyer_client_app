@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lawyer_client_app/client_login_page.dart';
 import 'package:lawyer_client_app/constant.dart';
 import 'package:lawyer_client_app/homepage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Client_Signup extends StatefulWidget {
   @override
@@ -9,6 +11,13 @@ class Client_Signup extends StatefulWidget {
 }
 
 class _Client_SignupState extends State<Client_Signup> {
+
+  String _email, _password,_name;
+  final databaseReference = Firestore.instance;
+
+  final _emailcontroller = TextEditingController();
+  final _passwordcontroller = TextEditingController();
+  final _namecontroller = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,6 +66,7 @@ class _Client_SignupState extends State<Client_Signup> {
               elevation: 2.0,
               borderRadius: BorderRadius.all(Radius.circular(10)),
               child: TextField(
+                controller: _namecontroller,
                 onChanged: (String value) {},
                 cursorColor: Constant.appColor,
                 decoration: InputDecoration(
@@ -84,6 +94,9 @@ class _Client_SignupState extends State<Client_Signup> {
               elevation: 2.0,
               borderRadius: BorderRadius.all(Radius.circular(10)),
               child: TextField(
+
+                keyboardType: TextInputType.emailAddress,
+                controller: _emailcontroller,
                 onChanged: (String value) {},
                 cursorColor: Constant.appColor,
                 decoration: InputDecoration(
@@ -111,6 +124,8 @@ class _Client_SignupState extends State<Client_Signup> {
               elevation: 2.0,
               borderRadius: BorderRadius.all(Radius.circular(10)),
               child: TextField(
+                obscureText: true,
+                controller: _passwordcontroller,
                 onChanged: (String value) {},
                 cursorColor: Constant.appColor,
                 decoration: InputDecoration(
@@ -148,7 +163,8 @@ class _Client_SignupState extends State<Client_Signup> {
                   ),
                   onPressed: () {
                     setState(() {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => Client_HomePage()));
+                      signUp();
+//                      Navigator.push(context, MaterialPageRoute(builder: (context) => Client_HomePage()));
                     });
                   },
                 ),
@@ -199,5 +215,31 @@ class _Client_SignupState extends State<Client_Signup> {
         ],
       ),
     );
+  }
+
+  void signUp() async {
+
+    _email = _emailcontroller.text;
+    _password = _passwordcontroller.text;
+    _name = _namecontroller.text;
+
+    try{
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _email, password: _password);
+
+      //Firestore
+       await databaseReference.collection("Lawyers")
+          .add({
+        'username': _namecontroller.text,
+        'email': _email,
+        'password': _password
+      });
+
+//        Firestore.instance.collection('users').document()
+//            .setData({ 'user_email': _email, 'user_password': _password , 'user_name' : _name});
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Client_HomePage()));
+    }catch(e){
+      print(e.message);
+    }
+
   }
 }
