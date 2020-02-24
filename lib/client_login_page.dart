@@ -200,7 +200,7 @@ class _Client_LoginState extends State<Client_Login> {
 
     try{
       await FirebaseAuth.instance.signInWithEmailAndPassword(email:_email , password: _password);
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Client_HomePage()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => ClientHomePage()));
     }catch(e){
       print(e.message);
     }
