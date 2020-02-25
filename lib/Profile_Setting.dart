@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lawyer_client_app/client_login_page.dart';
 import 'package:lawyer_client_app/constant.dart';
@@ -9,6 +11,20 @@ class Profile_Setting extends StatefulWidget {
 
 class _Profile_SettingState extends State<Profile_Setting> {
   String dropdownValue = 'Major';
+  String mName = '';
+  String mPhoneNum = '';
+  String mLicenceNumber = '';
+  String mYearExperience = '';
+  String mDescription = '';
+
+  final _namecontroller = TextEditingController();
+  final _phonecontroller = TextEditingController();
+  final _licencecontroller = TextEditingController();
+  final _majorcontroller = TextEditingController();
+  final _xpcontroller = TextEditingController();
+  final _descriptioncontroller = TextEditingController();
+  final databaseReference = Firestore.instance;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,6 +37,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
               elevation: 2.0,
               borderRadius: BorderRadius.all(Radius.circular(10)),
               child: TextField(
+                controller: _namecontroller,
                 onChanged: (String value) {},
                 cursorColor: Constant.appColor,
                 decoration: InputDecoration(
@@ -35,7 +52,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
                     ),
                     border: InputBorder.none,
                     contentPadding:
-                    EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
+                        EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
               ),
             ),
           ),
@@ -48,6 +65,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
               elevation: 2.0,
               borderRadius: BorderRadius.all(Radius.circular(10)),
               child: TextField(
+                controller: _phonecontroller,
                 onChanged: (String value) {},
                 cursorColor: Constant.appColor,
                 decoration: InputDecoration(
@@ -62,7 +80,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
                     ),
                     border: InputBorder.none,
                     contentPadding:
-                    EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
+                        EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
               ),
             ),
           ),
@@ -75,6 +93,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
               elevation: 2.0,
               borderRadius: BorderRadius.all(Radius.circular(10)),
               child: TextField(
+                controller: _licencecontroller,
                 onChanged: (String value) {},
                 cursorColor: Constant.appColor,
                 decoration: InputDecoration(
@@ -89,56 +108,38 @@ class _Profile_SettingState extends State<Profile_Setting> {
                     ),
                     border: InputBorder.none,
                     contentPadding:
-                    EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
+                        EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
               ),
             ),
           ),
           SizedBox(
             height: 20,
           ),
-    Padding(
-      padding: EdgeInsets.symmetric(horizontal: 32),
-      child: Material(
-        elevation: 2.0,
-        borderRadius: BorderRadius.all(Radius.circular(10)),
-        child: DropdownButton<String>(
-        value: dropdownValue,
-        icon: Padding(
-          padding: const EdgeInsets.only(left: 200),
-          child: Icon(Icons.arrow_downward,color: Constant.appColor,),
-        ),
-        iconSize: 24,
-        elevation: 16,
-        style: TextStyle(
-        color: Constant.appColor
-        ),
-        underline: Container(
-        height: 2,
-        color: Constant.appColor,
-        ),
-        onChanged: (String newValue) {
-        setState(() {
-        dropdownValue = newValue;
-        });
-        },
-        items: <String>['Major', 'Two', 'Free', 'Four']
-            .map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-        value: value,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: Text(value,style: TextStyle(
-
-            fontSize: 16
-          ),),
-
-        ),
-        );
-        })
-            .toList(),
-        ),
-      ),
-    ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 32),
+            child: Material(
+              elevation: 2.0,
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              child: TextField(
+                controller: _majorcontroller,
+                onChanged: (String value) {},
+                cursorColor: Constant.appColor,
+                decoration: InputDecoration(
+                    hintText: "Major",
+                    prefixIcon: Material(
+                      elevation: 0,
+                      borderRadius: BorderRadius.all(Radius.circular(30)),
+                      child: Icon(
+                        Icons.library_books,
+                        color: Constant.appColor,
+                      ),
+                    ),
+                    border: InputBorder.none,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
+              ),
+            ),
+          ),
           SizedBox(
             height: 25,
           ),
@@ -148,6 +149,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
               elevation: 2.0,
               borderRadius: BorderRadius.all(Radius.circular(10)),
               child: TextField(
+                controller: _xpcontroller,
                 onChanged: (String value) {},
                 cursorColor: Constant.appColor,
                 decoration: InputDecoration(
@@ -162,7 +164,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
                     ),
                     border: InputBorder.none,
                     contentPadding:
-                    EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
+                        EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
               ),
             ),
           ),
@@ -175,6 +177,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
               elevation: 2.0,
               borderRadius: BorderRadius.all(Radius.circular(10)),
               child: TextField(
+                controller: _descriptioncontroller,
                 onChanged: (String value) {},
                 cursorColor: Constant.appColor,
                 keyboardType: TextInputType.multiline,
@@ -191,7 +194,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
                     ),
                     border: InputBorder.none,
                     contentPadding:
-                    EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
+                        EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
               ),
             ),
           ),
@@ -202,18 +205,44 @@ class _Profile_SettingState extends State<Profile_Setting> {
                     borderRadius: BorderRadius.all(Radius.circular(10)),
                     color: Constant.appColor),
                 child: FlatButton(
+
                   child: Text(
-                    "Login",
+                    "Save",
                     style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
                         fontSize: 18),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    createRecord();
+                  },
                 ),
               )),
         ],
       ),
     );
+  }
+
+  void getData() async {
+    DocumentSnapshot mRef = await Firestore.instance
+        .collection("Lawyers")
+        .document((await FirebaseAuth.instance.currentUser()).uid)
+        .get();
+    setState(() {
+      mName = mRef['username'];
+    });
+  }
+
+  void createRecord() async {
+    String mUid = (await FirebaseAuth.instance.currentUser()).uid;
+    //Firestore
+    await databaseReference.collection("Lawyers").document(mUid).setData({
+      'username': _namecontroller.text,
+      'phonenumber': _phonecontroller.text,
+      'licencenumber': _licencecontroller.text,
+      'year_experience': _xpcontroller.text,
+      'major': _majorcontroller.text,
+      'description': _descriptioncontroller.text,
+    }, merge: true);
   }
 }
