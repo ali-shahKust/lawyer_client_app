@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lawyer_client_app/constant.dart';
 import 'package:lawyer_client_app/request_page.dart';
 
+import 'Profile_Setting.dart';
 import 'client_session_page.dart';
 
 class ClientHomePage extends StatefulWidget {
@@ -31,6 +32,9 @@ class _ClientHomePageState extends State<ClientHomePage> {
             break;
           case "My Request":
             Navigator.push(context, MaterialPageRoute(builder: (context) => Request_Page()));
+            break;
+          case "Profile":
+            Navigator.push(context, MaterialPageRoute(builder: (context) => Profile_Setting()));
             break;
         }
 

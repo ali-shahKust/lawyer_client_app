@@ -230,11 +230,11 @@ class _Client_SignupState extends State<Client_Signup> {
       //Firestore
        await databaseReference.collection("Lawyers")
           .document(mUid).setData({
-         'username': _namecontroller.text,
-         'email': _email,
-         'password': _password,
-         'user_uid': mUid
-       });
+        'username': _namecontroller.text,
+        'email': _email,
+        'password': _password,
+        'user_uid': mUid
+      });
 
 //        Firestore.instance.collection('users').document()
 //            .setData({ 'user_email': _email, 'user_password': _password , 'user_name' : _name});
