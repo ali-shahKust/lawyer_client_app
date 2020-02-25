@@ -241,7 +241,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
       'phonenumber': _phonecontroller.text,
       'licencenumber': _licencecontroller.text,
       'year_experience': _xpcontroller.text,
-      'major': _majorcontroller.text,
+      'type': _majorcontroller.text,
       'description': _descriptioncontroller.text,
     }, merge: true);
   }
