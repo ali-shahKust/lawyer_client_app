@@ -255,7 +255,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
                     color: Constant.appColor),
                 child: FlatButton(
                   child: Text(
-                    "Save",
+                    "save",
                     style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
