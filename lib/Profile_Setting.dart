@@ -234,15 +234,20 @@ class _Profile_SettingState extends State<Profile_Setting> {
   }
 
   void createRecord() async {
-    String mUid = (await FirebaseAuth.instance.currentUser()).uid;
-    //Firestore
-    await databaseReference.collection("Lawyers").document(mUid).setData({
-      'username': _namecontroller.text,
-      'phonenumber': _phonecontroller.text,
-      'licencenumber': _licencecontroller.text,
-      'year_experience': _xpcontroller.text,
-      'type': _majorcontroller.text,
-      'description': _descriptioncontroller.text,
-    }, merge: true);
+    try {
+      String mUid = (await FirebaseAuth.instance.currentUser()).uid;
+      //Firestore
+      await databaseReference.collection("Lawyers").document(mUid).setData({
+        'username': _namecontroller.text,
+        'phonenumber': _phonecontroller.text,
+        'licencenumber': _licencecontroller.text,
+        'year_experience': _xpcontroller.text,
+        'type': _majorcontroller.text,
+        'description': _descriptioncontroller.text,
+      }, merge: true);
+    }
+    catch(e){
+      print(e.message);
+    }
   }
 }
