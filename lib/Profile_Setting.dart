@@ -15,6 +15,55 @@ class _Profile_SettingState extends State<Profile_Setting> {
       backgroundColor: Colors.white,
       body: ListView(
         children: <Widget>[
+          Stack(
+        children: <Widget>[
+          Container(
+            width: double.infinity,
+            height: 250,
+            color: Constant.appColor,
+          ),
+      Center(
+        child: Column(
+          children: <Widget>[
+            Container(
+                height: 90,
+                margin: EdgeInsets.only(top: 60),
+                child: CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Colors.white,
+               //   child: Image.asset(),
+
+                )
+            ),
+            Padding(
+              padding: EdgeInsets.all(4),
+            ),
+            Text(
+              "Ali Shah",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                  fontSize: 20),
+              textAlign: TextAlign.center,
+            ),
+            Padding(
+              padding: EdgeInsets.all(4),
+            ),
+            Text(
+              "LPC",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+            ]),
+      )
+        ],
+      ),
+          SizedBox(
+            height: 15,
+          ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 32),
             child: Material(
@@ -40,7 +89,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
             ),
           ),
           SizedBox(
-            height: 20,
+            height: 15,
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 32),
@@ -67,7 +116,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
             ),
           ),
           SizedBox(
-            height: 20,
+            height: 15,
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 32),
@@ -94,7 +143,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
             ),
           ),
           SizedBox(
-            height: 20,
+            height: 15,
           ),
     Padding(
       padding: EdgeInsets.symmetric(horizontal: 32),
@@ -140,7 +189,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
       ),
     ),
           SizedBox(
-            height: 25,
+            height: 15,
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 32),
@@ -167,7 +216,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
             ),
           ),
           SizedBox(
-            height: 20,
+            height: 15,
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 32),
@@ -195,6 +244,9 @@ class _Profile_SettingState extends State<Profile_Setting> {
               ),
             ),
           ),
+          SizedBox(
+    height: 20.0,
+    ),
           Padding(
               padding: EdgeInsets.symmetric(horizontal: 32),
               child: Container(
@@ -203,7 +255,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
                     color: Constant.appColor),
                 child: FlatButton(
                   child: Text(
-                    "Login",
+                    "save",
                     style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
