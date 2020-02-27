@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lawyer_client_app/constant.dart';
 
@@ -9,39 +11,19 @@ class Request_Page extends StatefulWidget {
 }
 
 class _Request_PageState extends State<Request_Page> {
-  final primary =Constant.appColor;
+  final primary = Constant.appColor;
   final secondary = Constant.appColor;
-
-  final List<Map> LawyerList = [
-    {
-      "name": "Jenny",
-      "type": "Type of Consultant",
-      "discription": "Description",
-      "logoText":
-      "images/wallet2.png"
-    },
-    {
-      "name": "charlys",
-      "type":  "Type of Consultant",
-      "discription": "Description",
-      "logoText":
-      "images/wallet2.png"
-    },
-    {
-      "name": "Kinder Garden",
-      "type": "Type of Consultant",
-      "discription": "Description",
-      "logoText":
-      "images/wallet2.png"
-    },
-    {
-      "name": "angela",
-      "type": "Type of Consultant",
-      "discription": "Description",
-      "logoText":
-      "images/wallet2.png"
-    },
+  final databaseReference = Firestore.instance;
+  final List<DocumentSnapshot> LawyerList = [
   ];
+
+  @override
+  void initState() {
+    getData();
+
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -49,13 +31,22 @@ class _Request_PageState extends State<Request_Page> {
       backgroundColor: Color(0xfff0f0f0),
       body: SingleChildScrollView(
         child: Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
+          height: MediaQuery
+              .of(context)
+              .size
+              .height,
+          width: MediaQuery
+              .of(context)
+              .size
+              .width,
           child: Stack(
             children: <Widget>[
               Container(
                 padding: EdgeInsets.only(top: 145),
-                height: MediaQuery.of(context).size.height,
+                height: MediaQuery
+                    .of(context)
+                    .size
+                    .height,
                 width: double.infinity,
                 child: ListView.builder(
                     itemCount: LawyerList.length,
@@ -73,14 +64,14 @@ class _Request_PageState extends State<Request_Page> {
                         bottomRight: Radius.circular(30))),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: Center(
-                  child: Text('Requests',
-                      style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white)
+                  child: Center(
+                    child: Text('Requests',
+                        style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white)
+                    ),
                   ),
-                ),
                 ),
               ),
               Container(
@@ -89,30 +80,7 @@ class _Request_PageState extends State<Request_Page> {
                     SizedBox(
                       height: 110,
                     ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      child: Material(
-                        elevation: 5.0,
-                        borderRadius: BorderRadius.all(Radius.circular(30)),
-                        child: TextField(
-                          // controller: TextEditingController(text: locations[0]),
-                          cursorColor: Theme.of(context).primaryColor,
-                          decoration: InputDecoration(
-                              hintText: "Search Lawyer",
-                              hintStyle: TextStyle(
-                                  color: Colors.black38, fontSize: 16),
-                              prefixIcon: Material(
-                                elevation: 0.0,
-                                borderRadius:
-                                BorderRadius.all(Radius.circular(30)),
-                                child: Icon(Icons.search),
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 25, vertical: 13)),
-                        ),
-                      ),
-                    ),
+
                   ],
                 ),
               )
@@ -144,7 +112,7 @@ class _Request_PageState extends State<Request_Page> {
               borderRadius: BorderRadius.circular(50),
               border: Border.all(width: 3, color: secondary),
               image: DecorationImage(
-                  image: NetworkImage(LawyerList[index]['logoText']),
+                  image: NetworkImage(LawyerList[index]['user_dp']),
                   fit: BoxFit.fill),
             ),
           ),
@@ -153,7 +121,7 @@ class _Request_PageState extends State<Request_Page> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  LawyerList[index]['name'],
+                  LawyerList[index]['username'],
                   style: TextStyle(
                       color: primary,
                       fontWeight: FontWeight.bold,
@@ -169,12 +137,8 @@ class _Request_PageState extends State<Request_Page> {
                       color: secondary,
                       size: 20,
                     ),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Text(LawyerList[index]['type'],
-                        style: TextStyle(
-                            color: primary, fontSize: 13, letterSpacing: .3)),
+
+
                   ],
                 ),
                 SizedBox(
@@ -191,7 +155,7 @@ class _Request_PageState extends State<Request_Page> {
                     SizedBox(
                       width: 5,
                     ),
-                    Text(LawyerList[index]['discription'],
+                    Text(LawyerList[index]['description'],
                         style: TextStyle(
                             color: primary, fontSize: 13, letterSpacing: .3)),
                   ],
@@ -199,10 +163,11 @@ class _Request_PageState extends State<Request_Page> {
                 Row(
                   children: <Widget>[
                     Padding(
-                        padding:EdgeInsets.only(top: 35),
+                        padding: EdgeInsets.only(top: 35),
                         child: Container(
                           decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                              borderRadius: BorderRadius.all(
+                                  Radius.circular(10)),
                               color: Constant.appColor),
                           child: FlatButton(
                             child: Text(
@@ -212,7 +177,9 @@ class _Request_PageState extends State<Request_Page> {
                                   fontWeight: FontWeight.w700,
                                   fontSize: 18),
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              saveSession(LawyerList[index],index);
+                            },
                           ),
                         )),
                     SizedBox(
@@ -222,7 +189,8 @@ class _Request_PageState extends State<Request_Page> {
                         padding: EdgeInsets.only(top: 35),
                         child: Container(
                           decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                              borderRadius: BorderRadius.all(Radius.circular(
+                                  10)),
                               color: Constant.appColor),
                           child: FlatButton(
                             child: Text(
@@ -232,7 +200,9 @@ class _Request_PageState extends State<Request_Page> {
                                   fontWeight: FontWeight.w700,
                                   fontSize: 18),
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              deleteData(LawyerList[index].documentID, index);
+                            },
                           ),
                         )),
                   ],
@@ -243,5 +213,44 @@ class _Request_PageState extends State<Request_Page> {
         ],
       ),
     );
+  }
+
+
+  void getData() async {
+    String uId = (await FirebaseAuth.instance.currentUser()).uid;
+    databaseReference
+        .collection("My Request").where('lawyer_uid', isEqualTo: uId)
+        .getDocuments()
+        .then((QuerySnapshot snapshot) {
+      snapshot.documents.forEach((f) => LawyerList.add(f));
+      print('my list of data $LawyerList');
+      setState(() {});
+    });
+  }
+
+  void saveSession(DocumentSnapshot sessionShot ,int index) {
+    Firestore.instance
+        .collection('My Session')
+        .add(sessionShot.data)
+        .then((sVal){
+          deleteData(sessionShot.documentID, index);
+    });
+  }
+
+
+  void deleteData(String documentId, int index) {
+    try {
+      databaseReference
+          .collection('My Request')
+          .document(documentId)
+          .delete().then(
+              (val) {
+            setState(() {
+              LawyerList.removeAt(index);
+            });
+          });
+    } catch (e) {
+      print(e.toString());
+    }
   }
 }

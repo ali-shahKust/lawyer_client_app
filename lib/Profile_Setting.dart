@@ -12,6 +12,7 @@ class Profile_Setting extends StatefulWidget {
 class _Profile_SettingState extends State<Profile_Setting> {
   String dropdownValue = 'Major';
   String mName = '';
+  String mType = '';
   String mPhoneNum = '';
   String mLicenceNumber = '';
   String mYearExperience = '';
@@ -24,6 +25,12 @@ class _Profile_SettingState extends State<Profile_Setting> {
   final _xpcontroller = TextEditingController();
   final _descriptioncontroller = TextEditingController();
   final databaseReference = Firestore.instance;
+
+  @override
+  void initState() {
+    getData();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +62,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
                         padding: EdgeInsets.all(4),
                       ),
                       Text(
-                        "Ali Shah",
+                        mName,
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w500,
@@ -66,7 +73,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
                         padding: EdgeInsets.all(4),
                       ),
                       Text(
-                        "LPC",
+                        mType,
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w400,
@@ -86,6 +93,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
               elevation: 2.0,
               borderRadius: BorderRadius.all(Radius.circular(10)),
               child: TextField(
+
                 controller: _namecontroller,
                 onChanged: (String value) {},
                 cursorColor: Constant.appColor,
@@ -279,6 +287,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
         .get();
     setState(() {
       mName = mRef['username'];
+      mType = mRef['type'];
     });
   }
 
