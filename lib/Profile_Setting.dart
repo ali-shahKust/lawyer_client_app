@@ -324,6 +324,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
         'type': _majorcontroller.text,
         'description': _descriptioncontroller.text,
       }, merge: true);
+
     }
     catch (e) {
       print(e.message);
@@ -335,18 +336,26 @@ class _Profile_SettingState extends State<Profile_Setting> {
   Future<Uri> uploadPic() async {
 
     //Get the file from the image picker and store it
-    File image = await ImagePicker.pickImage(source: ImageSource.gallery);
+     _image = await ImagePicker.pickImage(source: ImageSource.gallery);
 
-    //Create a reference to the location you want to upload to in firebase
-    StorageReference reference = _storage.ref().child("profile_pics/");
+     String mUid = (await FirebaseAuth.instance.currentUser()).uid;
 
-    //Upload the file to firebase
-    StorageUploadTask uploadTask = reference.putFile(image);
-    uploadTask.onComplete.then((result) async {
-      url = await result.ref.getDownloadURL();
+     //Create a reference to the location you want to upload to in firebase
+     StorageReference reference = _storage.ref().child("Profile/").child((await FirebaseAuth.instance.currentUser()).uid);
 
+     //Upload the file to firebase
+     StorageUploadTask uploadTask = reference.putFile(_image);
+     uploadTask.onComplete.then((result) async {
+       url = await result.ref.getDownloadURL();
 
-    });
+       await databaseReference.collection("Lawyers").document(mUid).updateData({
+
+         'user_dp': url+'.jpg',
+       });
+       setState(() {
+
+       });
+     });
 
   }
 
