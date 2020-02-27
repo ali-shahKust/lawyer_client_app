@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lawyer_client_app/client_login_page.dart';
 import 'package:lawyer_client_app/constant.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart'; // For Image Picker
+import 'package:path/path.dart';
 
 class Profile_Setting extends StatefulWidget {
   @override
@@ -10,6 +15,8 @@ class Profile_Setting extends StatefulWidget {
 }
 
 class _Profile_SettingState extends State<Profile_Setting> {
+
+  bool isloading = true;
   String dropdownValue = 'Major';
   String mName = '';
   String mType = '';
@@ -17,7 +24,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
   String mLicenceNumber = '';
   String mYearExperience = '';
   String mDescription = '';
-
+  DocumentSnapshot mRef;
   final _namecontroller = TextEditingController();
   final _phonecontroller = TextEditingController();
   final _licencecontroller = TextEditingController();
@@ -26,6 +33,9 @@ class _Profile_SettingState extends State<Profile_Setting> {
   final _descriptioncontroller = TextEditingController();
   final databaseReference = Firestore.instance;
 
+  File _image;
+  String _uploadedFileURL;
+  String url;
   @override
   void initState() {
     getData();
@@ -36,7 +46,8 @@ class _Profile_SettingState extends State<Profile_Setting> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: ListView(
+
+      body: isloading ? Container() : ListView(
         children: <Widget>[
           Stack(
             children: <Widget>[
@@ -48,14 +59,23 @@ class _Profile_SettingState extends State<Profile_Setting> {
               Center(
                 child: Column(
                     children: <Widget>[
+
                       Container(
                           height: 90,
                           margin: EdgeInsets.only(top: 60),
-                          child: CircleAvatar(
-                            radius: 50,
-                            backgroundColor: Colors.white,
-                            //   child: Image.asset(),
+                          child: GestureDetector(
+                            onTap: () {
+                              uploadPic();                            },
+                            child: CircleAvatar(
 
+                              radius: 50,
+                              backgroundColor: Colors.white,
+
+                              backgroundImage: mRef['user_dp'] == null
+                                  ? AssetImage('/images/1.jpg')
+                                  : NetworkImage(mRef['user_dp']),
+
+                            ),
                           )
                       ),
                       Padding(
@@ -109,7 +129,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
                     ),
                     border: InputBorder.none,
                     contentPadding:
-                        EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
+                    EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
               ),
             ),
           ),
@@ -137,7 +157,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
                     ),
                     border: InputBorder.none,
                     contentPadding:
-                        EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
+                    EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
               ),
             ),
           ),
@@ -165,7 +185,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
                     ),
                     border: InputBorder.none,
                     contentPadding:
-                        EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
+                    EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
               ),
             ),
           ),
@@ -193,7 +213,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
                     ),
                     border: InputBorder.none,
                     contentPadding:
-                        EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
+                    EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
               ),
             ),
           ),
@@ -221,7 +241,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
                     ),
                     border: InputBorder.none,
                     contentPadding:
-                        EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
+                    EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
               ),
             ),
           ),
@@ -251,7 +271,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
                     ),
                     border: InputBorder.none,
                     contentPadding:
-                        EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
+                    EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
               ),
             ),
           ),
@@ -281,11 +301,12 @@ class _Profile_SettingState extends State<Profile_Setting> {
   }
 
   void getData() async {
-    DocumentSnapshot mRef = await Firestore.instance
+    mRef = await Firestore.instance
         .collection("Lawyers")
         .document((await FirebaseAuth.instance.currentUser()).uid)
         .get();
     setState(() {
+      isloading = false;
       mName = mRef['username'];
       mType = mRef['type'];
     });
@@ -304,8 +325,30 @@ class _Profile_SettingState extends State<Profile_Setting> {
         'description': _descriptioncontroller.text,
       }, merge: true);
     }
-    catch(e){
+    catch (e) {
       print(e.message);
     }
   }
+
+  FirebaseStorage _storage = FirebaseStorage.instance;
+
+  Future<Uri> uploadPic() async {
+
+    //Get the file from the image picker and store it
+    File image = await ImagePicker.pickImage(source: ImageSource.gallery);
+
+    //Create a reference to the location you want to upload to in firebase
+    StorageReference reference = _storage.ref().child("profile_pics/");
+
+    //Upload the file to firebase
+    StorageUploadTask uploadTask = reference.putFile(image);
+    uploadTask.onComplete.then((result) async {
+      url = await result.ref.getDownloadURL();
+
+
+    });
+
+  }
+
+
 }

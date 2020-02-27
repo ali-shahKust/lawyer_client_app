@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lawyer_client_app/constant.dart';
 
@@ -11,37 +13,17 @@ class Session_Page extends StatefulWidget {
 class _Session_PageState extends State<Session_Page> {
   final primary =Constant.appColor;
   final secondary = Constant.appColor;
+  final databaseReference = Firestore.instance;
 
   final List<Map> LawyerList = [
-    {
-      "name": "Jenny",
-      "type": "Type of Consultant",
-      "discription": "Description",
-      "logoText":
-      "images/wallet2.png"
-    },
-    {
-      "name": "charlys",
-      "type":  "Type of Consultant",
-      "discription": "Description",
-      "logoText":
-      "images/wallet2.png"
-    },
-    {
-      "name": "Kinder Garden",
-      "type": "Type of Consultant",
-      "discription": "Description",
-      "logoText":
-      "images/wallet2.png"
-    },
-    {
-      "name": "angela",
-      "type": "Type of Consultant",
-      "discription": "Description",
-      "logoText":
-      "images/wallet2.png"
-    },
   ];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    getData();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +93,7 @@ class _Session_PageState extends State<Session_Page> {
               borderRadius: BorderRadius.circular(50),
               border: Border.all(width: 3, color: secondary),
               image: DecorationImage(
-                  image: NetworkImage(LawyerList[index]['logoText']),
+                  image: NetworkImage(LawyerList[index]['user_dp']),
                   fit: BoxFit.fill),
             ),
           ),
@@ -120,7 +102,7 @@ class _Session_PageState extends State<Session_Page> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  LawyerList[index]['name'],
+                  LawyerList[index]['username'],
                   style: TextStyle(
                       color: primary,
                       fontWeight: FontWeight.bold,
@@ -139,9 +121,6 @@ class _Session_PageState extends State<Session_Page> {
                     SizedBox(
                       width: 5,
                     ),
-                    Text(LawyerList[index]['type'],
-                        style: TextStyle(
-                            color: primary, fontSize: 13, letterSpacing: .3)),
                   ],
                 ),
                 SizedBox(
@@ -158,7 +137,7 @@ class _Session_PageState extends State<Session_Page> {
                     SizedBox(
                       width: 5,
                     ),
-                    Text(LawyerList[index]['discription'],
+                    Text(LawyerList[index]['description'],
                         style: TextStyle(
                             color: primary, fontSize: 13, letterSpacing: .3)),
                   ],
@@ -186,5 +165,17 @@ class _Session_PageState extends State<Session_Page> {
         ],
       ),
     );
+  }
+
+  void getData() async {
+    String uId = (await FirebaseAuth.instance.currentUser()).uid;
+    databaseReference
+        .collection("My Session").where('lawyer_uid', isEqualTo: uId)
+        .getDocuments()
+        .then((QuerySnapshot snapshot) {
+      snapshot.documents.forEach((f) => LawyerList.add(f.data));
+      print('my list of data $LawyerList');
+      setState(() {});
+    });
   }
 }
