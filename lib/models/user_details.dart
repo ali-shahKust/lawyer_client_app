@@ -1,48 +1,48 @@
 
 class UserDetails {
 
-  String name;
-  String emailId;
-  String photoUrl;
-  String uid;
+  String username;
+  String user_email;
+  String user_dp;
+  String user_uid;
 
-  UserDetails({this.name, this.emailId, this.photoUrl, this.uid});
+  UserDetails({this.username, this.user_email, this.user_dp, this.user_uid});
 
   Map toMap(UserDetails userDetails) {
     var data = Map<String, String>();
-    data['username'] = userDetails.name;
-    data['user_email'] = userDetails.emailId;
-    data['user_dp'] = userDetails.photoUrl;
-    data['user_uid'] = userDetails.uid;
+    data['username'] = userDetails.username;
+    data['user_email'] = userDetails.user_email;
+    data['user_dp'] = userDetails.user_dp;
+    data['user_uid'] = userDetails.user_uid;
     return data;
   }
 
   UserDetails.fromMap(Map<String, String> mapData) {
-    this.name = mapData['username'];
-    this.emailId = mapData['user_email'];
-    this.photoUrl = mapData['user_dp'];
-    this.uid = mapData['user_uid'];
+    this.username = mapData['username'];
+    this.user_email = mapData['user_email'];
+    this.user_dp = mapData['user_dp'];
+    this.user_uid = mapData['user_uid'];
   }
 
-  String get _name => name;
-  String get _emailId => emailId;
-  String get _photoUrl => photoUrl;
-  String get _uid => uid;
+  String get _name => username;
+  String get _emailId => user_email;
+  String get _photoUrl => user_dp;
+  String get _uid => user_uid;
 
-  set _photoUrl(String photoUrl) {
-    this.photoUrl = photoUrl;
+  set _photoUrl(String user_dp) {
+    this.user_dp = user_dp;
   }
 
   set _name(String name) {
-    this.name = name;
+    this.username = name;
   }
 
-  set _emailId(String emailId) {
-    this.emailId = emailId;
+  set _emailId(String user_email) {
+    this.user_email = user_email;
   }
 
-  set _uid(String uid) {
-    this.uid = uid;
+  set _uid(String user_uid) {
+    this.user_uid = user_uid;
   }
 
 }

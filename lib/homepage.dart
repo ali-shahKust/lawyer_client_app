@@ -7,8 +7,10 @@ import 'package:lawyer_client_app/request_page.dart';
 import 'Chat_list.dart';
 import 'Profile_Setting.dart';
 import 'client_session_page.dart';
+import 'models/message.dart';
 
 class ClientHomePage extends StatefulWidget {
+
   @override
   _ClientHomePageState createState() => _ClientHomePageState();
 }
@@ -16,6 +18,8 @@ class ClientHomePage extends StatefulWidget {
 class _ClientHomePageState extends State<ClientHomePage> {
 
   String mName= '';
+  Message _message;
+  String receiverUid;
 
 
   @override
@@ -38,7 +42,7 @@ class _ClientHomePageState extends State<ClientHomePage> {
             Navigator.push(context, MaterialPageRoute(builder: (context) => Profile_Setting()));
             break;
           case "Chat":
-            Navigator.push(context, MaterialPageRoute(builder: (context) => ChatList()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => ChatList(receiverUid)));
             break;
         }
 

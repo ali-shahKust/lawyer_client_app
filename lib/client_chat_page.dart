@@ -50,14 +50,14 @@ class _ChatScreenState extends State<ChatScreen> {
         print("sender uid : $_senderuid");
         getSenderPhotoUrl(_senderuid).then((snapshot) {
           setState(() {
-            senderPhotoUrl = snapshot['photoUrl'];
-            senderName = snapshot['name'];
+            senderPhotoUrl = snapshot['user_dp'];
+            senderName = snapshot['username'];
           });
         });
         getReceiverPhotoUrl(widget.receiverUid).then((snapshot) {
           setState(() {
-            receiverPhotoUrl = snapshot['photoUrl'];
-            receiverName = snapshot['name'];
+            receiverPhotoUrl = snapshot['user_dp'];
+            receiverName = snapshot['username'];
           });
         });
       });
@@ -257,13 +257,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<DocumentSnapshot> getSenderPhotoUrl(String uid) {
     var senderDocumentSnapshot =
-    Firestore.instance.collection('users').document(uid).get();
+    Firestore.instance.collection('Lawyers').document(uid).get();
     return senderDocumentSnapshot;
   }
 
   Future<DocumentSnapshot> getReceiverPhotoUrl(String uid) {
     var receiverDocumentSnapshot =
-    Firestore.instance.collection('users').document(uid).get();
+    Firestore.instance.collection('Users').document(uid).get();
     return receiverDocumentSnapshot;
   }
 
@@ -357,9 +357,9 @@ class _ChatScreenState extends State<ChatScreen> {
                               builder: (context) => FullScreenImage(photoUrl: snapshot['user_dp'],)));
                     }),
                     child: Hero(
-                      tag: snapshot['photoUrl'],
+                      tag: snapshot['user_dp'],
                       child: FadeInImage(
-                        image: NetworkImage(snapshot['photoUrl']),
+                        image: NetworkImage(snapshot['user_dp']),
                         placeholder: AssetImage('assets/blankimage.png'),
                         width: 200.0,
                         height: 200.0,
