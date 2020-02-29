@@ -13,10 +13,12 @@ class ChatList extends StatefulWidget {
 }
 
 class _ChatListState extends State<ChatList> {
+  String _senderuid;
   final primary =Constant.appColor;
   final secondary = Constant.appColor;
   final databaseReference = Firestore.instance;
   String dId='';
+  DocumentSnapshot mRef;
 
   final List<DocumentSnapshot> LawyerList = [
   ];
@@ -96,7 +98,7 @@ class _ChatListState extends State<ChatList> {
               borderRadius: BorderRadius.circular(50),
               border: Border.all(width: 3, color: secondary),
               image: DecorationImage(
-                  image: NetworkImage(LawyerList[index]['user_dp']),
+                  image: AssetImage('images/1.jpg'),
                   fit: BoxFit.fill),
             ),
           ),
@@ -105,7 +107,7 @@ class _ChatListState extends State<ChatList> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  LawyerList[index]['username'],
+                  'Some Data',
                   style: TextStyle(
                       color: primary,
                       fontWeight: FontWeight.bold,
@@ -140,7 +142,7 @@ class _ChatListState extends State<ChatList> {
                     SizedBox(
                       width: 5,
                     ),
-                    Text(LawyerList[index]['description'],
+                    Text("my data",
                         style: TextStyle(
                             color: primary, fontSize: 13, letterSpacing: .3)),
                   ],
@@ -161,10 +163,10 @@ class _ChatListState extends State<ChatList> {
                         ),
                         onPressed: () {
                           Navigator.push(context, MaterialPageRoute(builder:(context) => ChatScreen(
-                              name: LawyerList[index].data['username'],
-                              photoUrl: LawyerList[index].data['user_dp'],
-                              receiverUid:
-                              LawyerList[index].data['client_uid']
+//                              name: LawyerList[index].data['username'],
+//                              photoUrl: LawyerList[index].data['user_dp'],
+//                              receiverUid:
+//                              LawyerList[index].data['client_uid']
                           )));
                         },
                       ),
@@ -178,14 +180,12 @@ class _ChatListState extends State<ChatList> {
   }
 
   void getData() async {
-    String uId = (await FirebaseAuth.instance.currentUser()).uid;
-    databaseReference
-        .collection("My Session").where('lawyer_uid', isEqualTo: uId)
-        .getDocuments()
-        .then((QuerySnapshot snapshot) {
-      snapshot.documents.forEach((f) => LawyerList.add(f));
-
-      setState(() {});
+    mRef = await Firestore.instance
+        .collection("messages")
+        .document((await FirebaseAuth.instance.currentUser()).uid)
+        .get();
+    setState(() {
+    print('My refrence messages data is $mRef');
     });
   }
 
