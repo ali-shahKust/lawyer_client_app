@@ -350,7 +350,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
 
        await databaseReference.collection("Lawyers").document(mUid).updateData({
 
-         'user_dp': url+'.jpg',
+         'user_dp': url,
        });
        setState(() {
 

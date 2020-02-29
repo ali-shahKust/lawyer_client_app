@@ -1,185 +1,377 @@
-import 'dart:math';
-import 'package:flutter/material.dart';
-import 'package:lawyer_client_app/constant.dart';
+import 'dart:io';
 
-class Client_Chat_Page extends StatefulWidget {
-  static final String path = "lib/src/pages/misc/chat2.dart";
-  @override
-  _Client_Chat_PageState createState() => _Client_Chat_PageState();
+import 'package:lawyer_client_app/full_screen_image.dart';
+import 'package:lawyer_client_app/models/message.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+
+import 'full_screen_image.dart';
+import 'models/message.dart';
+
+class ChatScreen extends StatefulWidget {
+  String name;
+  String photoUrl;
+  String receiverUid;
+  ChatScreen({this.name, this.photoUrl, this.receiverUid});
+
+  _ChatScreenState createState() => _ChatScreenState();
 }
 
-class _Client_Chat_PageState extends State<Client_Chat_Page> {
-  String text;
-  TextEditingController _controller;
-  final List<String> avatars = [
-    "images/1.jpg",
-    "images/2.jpg",
-  ];
-  final List<Message> messages = [
-    Message(0, "But I may not go."),
-    Message(0, "I suppose I am."),
-    Message(1, "Are you going"),
-    Message(0, "I am good too"),
-    Message(1, "I am fine, thank you."),
-    Message(1, "Hi,"),
-    Message(0, "How are you today?"),
-    Message(0, "Hello,"),
-  ];
-  final rand = Random();
+class _ChatScreenState extends State<ChatScreen> {
+  Message _message;
+  var _formKey = GlobalKey<FormState>();
+  var map = Map<String, dynamic>();
+  CollectionReference _collectionReference;
+  DocumentReference _receiverDocumentReference;
+  DocumentReference _senderDocumentReference;
+  DocumentReference _documentReference;
+  DocumentSnapshot documentSnapshot;
+  FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  String _senderuid;
+  var listItem;
+  String receiverPhotoUrl, senderPhotoUrl, receiverName, senderName;
+  StreamSubscription<DocumentSnapshot> subscription;
+  File imageFile;
+  StorageReference _storageReference;
+  TextEditingController _messageController;
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
+
+    _messageController = TextEditingController();
+    getUID().then((user) {
+      setState(() {
+        _senderuid = user.uid;
+        print("sender uid : $_senderuid");
+        getSenderPhotoUrl(_senderuid).then((snapshot) {
+          setState(() {
+            senderPhotoUrl = snapshot['photoUrl'];
+            senderName = snapshot['name'];
+          });
+        });
+        getReceiverPhotoUrl(widget.receiverUid).then((snapshot) {
+          setState(() {
+            receiverPhotoUrl = snapshot['photoUrl'];
+            receiverName = snapshot['name'];
+          });
+        });
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    subscription?.cancel();
+  }
+
+  void addMessageToDb(Message message) async {
+    print("Message : ${message.message}");
+    map = message.toMap();
+
+    print("Map : ${map}");
+    _collectionReference = Firestore.instance
+        .collection("messages")
+        .document(message.senderUid)
+        .collection(widget.receiverUid);
+
+    _collectionReference.add(map).whenComplete(() {
+      print("Messages added to db");
+    });
+
+    _collectionReference = Firestore.instance
+        .collection("messages")
+        .document(widget.receiverUid)
+        .collection(message.senderUid);
+
+    _collectionReference.add(map).whenComplete(() {
+      print("Messages added to db");
+    });
+
+    _messageController.text = "";
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: <Widget>[
-          Container(
-            height: 100,
-            width: double.infinity,
-            decoration: BoxDecoration(
-                color: Constant.appColor,
-               ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: Center(
-                child: Text('Message',
-                    style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white)
-                ),
+        appBar: AppBar(
+          title: Text(widget.name),
+        ),
+        body: Form(
+          key: _formKey,
+          child: _senderuid == null
+              ? Container(
+            child: CircularProgressIndicator(),
+          )
+              : Column(
+            children: <Widget>[
+              //buildListLayout(),
+              ChatMessagesListWidget(),
+              Divider(
+                height: 20.0,
+                color: Colors.black,
               ),
-            ),
+              ChatInputWidget(),
+              SizedBox(
+                height: 10.0,
+              )
+            ],
           ),
-          Expanded(
-            child: ListView.separated(
-              physics: BouncingScrollPhysics(),
-              separatorBuilder: (context, index) {
-                return const SizedBox(height: 10.0);
-              },
-              reverse: true,
-              itemCount: messages.length,
-              itemBuilder: (BuildContext context, int index) {
-                Message m = messages[index];
-                if (m.user == 0) return _buildMessageRow(m, current: true);
-                return _buildMessageRow(m, current: false);
-              },
-            ),
-          ),
-          _buildBottomBar(context),
-        ],
-      ),
-    );
+        ));
   }
 
-  Container _buildBottomBar(BuildContext context) {
+  Widget ChatInputWidget() {
     return Container(
-      margin: const EdgeInsets.symmetric(
-        vertical: 8.0,
-        horizontal: 16.0,
-      ),
-      decoration: BoxDecoration(
-        color: Constant.appColor,
-        borderRadius: BorderRadius.circular(30.0),
-      ),
-      padding: const EdgeInsets.symmetric(
-        vertical: 8.0,
-        horizontal: 20.0,
-      ),
+      height: 55.0,
+      margin: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(
         children: <Widget>[
-          Expanded(
-            child: TextField(
-              textInputAction: TextInputAction.send,
-              controller: _controller,
-              decoration: InputDecoration(
-                focusColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 20.0,
-                  ),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20.0)),
-                  hintText: "message"),
-              onEditingComplete: _save,
-              cursorColor: Colors.white,
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: IconButton(
+              splashColor: Colors.white,
+              icon: Icon(
+                Icons.camera_alt,
+                color: Colors.black,
+              ),
+              onPressed: () {
+                pickImage();
+              },
             ),
           ),
-          IconButton(
-            icon: Icon(Icons.send),
-            color: Colors.white,
-            onPressed: _save,
+          Flexible(
+            child: TextFormField(
+              validator: (String input) {
+                if (input.isEmpty) {
+                  return "Please enter message";
+                }
+              },
+              controller: _messageController,
+              decoration: InputDecoration(
+                  hintText: "Enter message...",
+                  labelText: "Message",
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5.0))),
+              onFieldSubmitted: (value) {
+                _messageController.text = value;
+              },
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: IconButton(
+              splashColor: Colors.white,
+              icon: Icon(
+                Icons.send,
+                color: Colors.black,
+              ),
+              onPressed: () {
+                if (_formKey.currentState.validate()) {
+                  sendMessage();
+                }
+              },
+            ),
           )
         ],
       ),
     );
   }
 
-  _save() async {
-    if (_controller.text.isEmpty) return;
-    FocusScope.of(context).requestFocus(FocusNode());
+  Future<String> pickImage() async {
+    var selectedImage =
+    await ImagePicker.pickImage(source: ImageSource.gallery);
     setState(() {
-      messages.insert(0, Message(rand.nextInt(2), _controller.text));
-      _controller.clear();
+      imageFile = selectedImage;
+    });
+    _storageReference = FirebaseStorage.instance
+        .ref()
+        .child('${DateTime.now().millisecondsSinceEpoch}');
+    StorageUploadTask storageUploadTask = _storageReference.putFile(imageFile);
+    var url = await (await storageUploadTask.onComplete).ref.getDownloadURL();
+
+    print("URL: $url");
+    uploadImageToDb(url);
+    return url;
+  }
+
+  void uploadImageToDb(String downloadUrl) {
+    _message = Message.withoutMessage(
+        receiverUid: widget.receiverUid,
+        senderUid: _senderuid,
+        photoUrl: downloadUrl,
+        timestamp: FieldValue.serverTimestamp(),
+        type: 'image');
+    var map = Map<String, dynamic>();
+    map['senderUid'] = _message.senderUid;
+    map['receiverUid'] = _message.receiverUid;
+    map['type'] = _message.type;
+    map['timestamp'] = _message.timestamp;
+    map['photoUrl'] = _message.photoUrl;
+
+    print("Map : ${map}");
+    _collectionReference = Firestore.instance
+        .collection("messages")
+        .document(_message.senderUid)
+        .collection(widget.receiverUid);
+
+    _collectionReference.add(map).whenComplete(() {
+      print("Messages added to db");
+    });
+
+    _collectionReference = Firestore.instance
+        .collection("messages")
+        .document(widget.receiverUid)
+        .collection(_message.senderUid);
+
+    _collectionReference.add(map).whenComplete(() {
+      print("Messages added to db");
     });
   }
 
-  Row _buildMessageRow(Message message, {bool current}) {
-    return Row(
-      mainAxisAlignment:
-      current ? MainAxisAlignment.end : MainAxisAlignment.start,
-      crossAxisAlignment:
-      current ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+  void sendMessage() async {
+    print("Inside send message");
+    var text = _messageController.text;
+    print(text);
+    _message = Message(
+        receiverUid: widget.receiverUid,
+        senderUid: _senderuid,
+        message: text,
+        timestamp: FieldValue.serverTimestamp(),
+        type: 'text');
+    print(
+        "receiverUid: ${widget.receiverUid} , senderUid : ${_senderuid} , message: ${text}");
+    print(
+        "timestamp: ${DateTime.now().millisecond}, type: ${text != null ? 'text' : 'image'}");
+    addMessageToDb(_message);
+  }
+
+  Future<FirebaseUser> getUID() async {
+    FirebaseUser user = await _firebaseAuth.currentUser();
+    return user;
+  }
+
+  Future<DocumentSnapshot> getSenderPhotoUrl(String uid) {
+    var senderDocumentSnapshot =
+    Firestore.instance.collection('users').document(uid).get();
+    return senderDocumentSnapshot;
+  }
+
+  Future<DocumentSnapshot> getReceiverPhotoUrl(String uid) {
+    var receiverDocumentSnapshot =
+    Firestore.instance.collection('users').document(uid).get();
+    return receiverDocumentSnapshot;
+  }
+
+  Widget ChatMessagesListWidget() {
+    print("SENDERUID : $_senderuid");
+    return Flexible(
+      child: StreamBuilder(
+        stream: Firestore.instance
+            .collection('messages')
+            .document(_senderuid)
+            .collection(widget.receiverUid)
+            .orderBy('timestamp', descending: false)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
+            listItem = snapshot.data.documents;
+            return ListView.builder(
+              padding: EdgeInsets.all(10.0),
+              itemBuilder: (context, index) =>
+                  chatMessageItem(snapshot.data.documents[index]),
+              itemCount: snapshot.data.documents.length,
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  Widget chatMessageItem(DocumentSnapshot documentSnapshot) {
+    return buildChatLayout(documentSnapshot);
+  }
+
+  Widget buildChatLayout(DocumentSnapshot snapshot) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        SizedBox(width: current ? 30.0 : 20.0),
-        if (!current) ...[
-          CircleAvatar(
-            backgroundImage: AssetImage(
-              current ? avatars[0] : avatars[1],
-            ),
-            radius: 20.0,
-            backgroundColor: Constant.appColor,
-          ),
-          const SizedBox(width: 5.0),
-        ],
-        Container(
-          padding: const EdgeInsets.symmetric(
-            vertical: 8.0,
-            horizontal: 16.0,
-          ),
-          decoration: BoxDecoration(
-              color: current ? Constant.appColor : Colors.white,
-              borderRadius: BorderRadius.circular(10.0)),
-          child: Text(
-            message.description,
-            style: TextStyle(
-                color: current ? Colors.white : Colors.black, fontSize: 18.0),
+        Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            mainAxisAlignment: snapshot['senderUid'] == _senderuid?
+            MainAxisAlignment.end : MainAxisAlignment.start,
+            children: <Widget>[
+              snapshot['senderUid'] == _senderuid
+                  ? CircleAvatar(
+                backgroundImage: senderPhotoUrl == null
+                    ? AssetImage('assets/blankimage.png')
+                    : NetworkImage(senderPhotoUrl),
+                radius: 20.0,
+              )
+                  : CircleAvatar(
+                backgroundImage: receiverPhotoUrl == null
+                    ? AssetImage('assets/blankimage.png')
+                    : NetworkImage(receiverPhotoUrl),
+                radius: 20.0,
+              ),
+              SizedBox(
+                width: 10.0,
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  snapshot['senderUid'] == _senderuid
+                      ? new Text(
+                    senderName == null ? "" : senderName,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold),
+                  )
+                      : new Text(
+                    receiverName == null ? "" : receiverName,
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  snapshot['type'] == 'text'
+                      ? new Text(
+                    snapshot['message'],
+                    style: TextStyle(color: Colors.black, fontSize: 14.0),
+                  )
+                      : InkWell(
+                    onTap: (() {
+                      Navigator.push(
+                          context,
+                          new MaterialPageRoute(
+                              builder: (context) => FullScreenImage(photoUrl: snapshot['user_dp'],)));
+                    }),
+                    child: Hero(
+                      tag: snapshot['photoUrl'],
+                      child: FadeInImage(
+                        image: NetworkImage(snapshot['photoUrl']),
+                        placeholder: AssetImage('assets/blankimage.png'),
+                        width: 200.0,
+                        height: 200.0,
+                      ),
+                    ),
+                  )
+                ],
+              )
+            ],
           ),
         ),
-        if (current) ...[
-          const SizedBox(width: 5.0),
-          CircleAvatar(
-            backgroundImage: AssetImage(
-              current ? avatars[0] : avatars[1],
-            ),
-            backgroundColor: Constant.appColor,
-            radius: 10.0,
-          ),
-        ],
-        SizedBox(width: current ? 20.0 : 30.0),
       ],
     );
   }
-}
-
-class Message {
-  final int user;
-  final String description;
-
-  Message(this.user, this.description);
 }

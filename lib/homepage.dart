@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:lawyer_client_app/constant.dart';
 import 'package:lawyer_client_app/request_page.dart';
 
+import 'Chat_list.dart';
 import 'Profile_Setting.dart';
 import 'client_session_page.dart';
 
@@ -35,6 +36,9 @@ class _ClientHomePageState extends State<ClientHomePage> {
             break;
           case "Profile":
             Navigator.push(context, MaterialPageRoute(builder: (context) => Profile_Setting()));
+            break;
+          case "Chat":
+            Navigator.push(context, MaterialPageRoute(builder: (context) => ChatList()));
             break;
         }
 

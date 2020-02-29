@@ -5,14 +5,14 @@ import 'package:lawyer_client_app/constant.dart';
 
 import 'client_chat_page.dart';
 
-class Session_Page extends StatefulWidget {
-  Session_Page({Key key}) : super(key: key);
+class ChatList extends StatefulWidget {
+  ChatList({Key key}) : super(key: key);
   static final String path = "lib/src/pages/lists/list2.dart";
 
-  _Session_PageState createState() => _Session_PageState();
+  _ChatListState createState() => _ChatListState();
 }
 
-class _Session_PageState extends State<Session_Page> {
+class _ChatListState extends State<ChatList> {
   final primary =Constant.appColor;
   final secondary = Constant.appColor;
   final databaseReference = Firestore.instance;
@@ -59,7 +59,7 @@ class _Session_PageState extends State<Session_Page> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: Center(
-                    child: Text('Sessions',
+                    child: Text('Chat List',
                         style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.w800,
