@@ -5,21 +5,19 @@ import 'package:lawyer_client_app/constant.dart';
 
 import 'client_chat_page.dart';
 
-
-class ChatList extends StatefulWidget {
-  ChatList({Key key}) : super(key: key);
+class Chat_List extends StatefulWidget {
+  Chat_List({Key key}) : super(key: key);
   static final String path = "lib/src/pages/lists/list2.dart";
 
-  _ChatListState createState() => _ChatListState();
+  _Chat_ListState createState() => _Chat_ListState();
 }
 
-class _ChatListState extends State<ChatList> {
-  final primary = Constant.appColor;
+class _Chat_ListState extends State<Chat_List> {
+  final primary =Constant.appColor;
   final secondary = Constant.appColor;
   final databaseReference = Firestore.instance;
-  String dId = '';
-  final lawyerRef = Firestore.instance;
-  final List<DocumentSnapshot> userList= [];
+  String dId='';
+
   final List<DocumentSnapshot> LawyerList = [
   ];
 
@@ -36,22 +34,13 @@ class _ChatListState extends State<ChatList> {
       backgroundColor: Color(0xfff0f0f0),
       body: SingleChildScrollView(
         child: Container(
-          height: MediaQuery
-              .of(context)
-              .size
-              .height,
-          width: MediaQuery
-              .of(context)
-              .size
-              .width,
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
           child: Stack(
             children: <Widget>[
               Container(
                 padding: EdgeInsets.only(top: 145),
-                height: MediaQuery
-                    .of(context)
-                    .size
-                    .height,
+                height: MediaQuery.of(context).size.height,
                 width: double.infinity,
                 child: ListView.builder(
                     itemCount: LawyerList.length,
@@ -70,7 +59,7 @@ class _ChatListState extends State<ChatList> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: Center(
-                    child: Text('Recent Chats',
+                    child: Text('Chats',
                         style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.w800,
@@ -87,16 +76,6 @@ class _ChatListState extends State<ChatList> {
   }
 
   Widget buildList(BuildContext context, int index) {
-    DocumentSnapshot uSnap;
-    String userUid=LawyerList[index]['receiverUid'];
-    for( var i in userList){
-      if(i['user_uid']==userUid)
-      {
-        uSnap=i;
-        break;
-      }
-    }
-
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
@@ -117,7 +96,7 @@ class _ChatListState extends State<ChatList> {
               borderRadius: BorderRadius.circular(50),
               border: Border.all(width: 3, color: secondary),
               image: DecorationImage(
-                  image: NetworkImage(uSnap['user_dp']),
+                  image: NetworkImage(LawyerList[index]['user_dp']),
                   fit: BoxFit.fill),
             ),
           ),
@@ -125,13 +104,13 @@ class _ChatListState extends State<ChatList> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-//                Text(
-//                  LawyerList[index]['username'],
-//                  style: TextStyle(
-//                      color: primary,
-//                      fontWeight: FontWeight.bold,
-//                      fontSize: 18),
-//                ),
+                Text(
+                  LawyerList[index]['username'],
+                  style: TextStyle(
+                      color: primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18),
+                ),
                 SizedBox(
                   height: 6,
                 ),
@@ -162,15 +141,14 @@ class _ChatListState extends State<ChatList> {
                       width: 5,
                     ),
                     Flexible(
-                      child: Text(
-                          LawyerList[index]['message'],
+                      child: Text(LawyerList[index]['description'],
                           style: TextStyle(
                               color: primary, fontSize: 13, letterSpacing: .3)),
                     ),
                   ],
                 ),
                 Padding(
-                    padding: EdgeInsets.only(top: 35),
+                    padding:EdgeInsets.only(top: 35),
                     child: Container(
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -184,14 +162,12 @@ class _ChatListState extends State<ChatList> {
                               fontSize: 18),
                         ),
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (
-                              context) =>
-                              ChatScreen(
-                                  name: LawyerList[index].data['username'],
-                                  photoUrl: LawyerList[index].data['user_dp'],
-                                  receiverUid:
-                                  LawyerList[index].data['client_uid']
-                              )));
+                          Navigator.push(context, MaterialPageRoute(builder:(context) => ChatScreen(
+                              name: LawyerList[index].data['username'],
+                              photoUrl: LawyerList[index].data['user_dp'],
+                              receiverUid:
+                              LawyerList[index].data['client_uid']
+                          )));
                         },
                       ),
                     )),
@@ -206,24 +182,13 @@ class _ChatListState extends State<ChatList> {
   void getData() async {
     String uId = (await FirebaseAuth.instance.currentUser()).uid;
     databaseReference
-        .collection("messages").document(uId).collection("recent_chats").getDocuments()
+        .collection("start_chat").where('lawyer_uid', isEqualTo: uId)
+        .getDocuments()
         .then((QuerySnapshot snapshot) {
-      snapshot.documents.forEach((documentSNapshot){
-        LawyerList.add(documentSNapshot);
-        print(documentSNapshot.data.toString());
-      });
+      snapshot.documents.forEach((f) => LawyerList.add(f));
 
-      Firestore.instance.collection('Users').getDocuments().then((userFun){
-        userFun.documents.forEach((someFun){
-          userList.add(someFun);
-
-        });
-        setState(() {
-
-        });
-      });
+      setState(() {});
     });
   }
-
 
 }
