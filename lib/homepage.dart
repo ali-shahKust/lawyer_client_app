@@ -42,7 +42,7 @@ class _ClientHomePageState extends State<ClientHomePage> {
             Navigator.push(context, MaterialPageRoute(builder: (context) => Profile_Setting()));
             break;
           case "Chat":
-            Navigator.push(context, MaterialPageRoute(builder: (context) => ChatList(receiverUid)));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => ChatList()));
             break;
         }
 

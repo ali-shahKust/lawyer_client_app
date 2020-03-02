@@ -22,7 +22,9 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  DocumentSnapshot mRef;
   Message _message;
+  String timeStamp;
   var _formKey = GlobalKey<FormState>();
   var map = Map<String, dynamic>();
   CollectionReference _collectionReference;
@@ -73,25 +75,39 @@ class _ChatScreenState extends State<ChatScreen> {
   void addMessageToDb(Message message) async {
     print("Message : ${message.message}");
     map = message.toMap();
+    Map mMap = new Map<String , Object>();
+   mMap['timestamp'] =message.timestamp;
+   mMap['message'] = message.message;
+   mMap['senderUid']= message.senderUid;
+   mMap['receiverUid']= message.receiverUid;
+   mMap['type']= message.type;
 
     print("Map : ${map}");
-    _collectionReference = Firestore.instance
+     Firestore.instance
         .collection("messages")
-        .document(message.senderUid)
-        .collection(widget.receiverUid);
+        .document(message.senderUid).collection('recent_chats').document(message.receiverUid).setData(
+       mMap).then((myFun){
+//         Map newMap = new Map<String , Object>();
+//         newMap['message'] ='hello';
+//         newMap['hello'] = 'world';
 
-    _collectionReference.add(map).whenComplete(() {
-      print("Messages added to db");
-    });
+         Firestore.instance
+             .collection("messages")
+             .document(message.senderUid).collection('recent_chats').document(message.receiverUid).collection("messages").add(map);
 
-    _collectionReference = Firestore.instance
-        .collection("messages")
-        .document(widget.receiverUid)
-        .collection(message.senderUid);
+     });
 
-    _collectionReference.add(map).whenComplete(() {
-      print("Messages added to db");
-    });
+//    _collectionReference.add(map).whenComplete(() {
+//    });
+
+//    _collectionReference = Firestore.instance
+//        .collection("messages")
+//        .document(widget.receiverUid)
+//        .collection(message.senderUid);
+//
+//    _collectionReference.add(map).whenComplete(() {
+//      print("Messages added to db");
+//    });
 
     _messageController.text = "";
   }
@@ -200,37 +216,59 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void uploadImageToDb(String downloadUrl) {
+
     _message = Message.withoutMessage(
         receiverUid: widget.receiverUid,
         senderUid: _senderuid,
         photoUrl: downloadUrl,
         timestamp: FieldValue.serverTimestamp(),
         type: 'image');
+
+
     var map = Map<String, dynamic>();
-    map['senderUid'] = _message.senderUid;
-    map['receiverUid'] = _message.receiverUid;
-    map['type'] = _message.type;
-    map['timestamp'] = _message.timestamp;
+//    map['senderUid'] = _message.senderUid;
+//    map['receiverUid'] = _message.receiverUid;
+//    map['type'] = _message.type;
+//    map['timestamp'] = _message.timestamp;
     map['photoUrl'] = _message.photoUrl;
+    map['timestamp'] =Timestamp.now();
+    map['senderUid']= _message.senderUid;
+    map['receiverUid']= _message.receiverUid;
+    map['type']= _message.type;
 
     print("Map : ${map}");
-    _collectionReference = Firestore.instance
+    Firestore.instance
         .collection("messages")
-        .document(_message.senderUid)
-        .collection(widget.receiverUid);
+        .document(_message.senderUid).collection('recent_chats').document(_message.receiverUid).setData(
+        map).then((myFun){
+//         Map newMap = new Map<String , Object>();
+//         newMap['message'] ='hello';
+//         newMap['hello'] = 'world';
 
-    _collectionReference.add(map).whenComplete(() {
-      print("Messages added to db");
+      Firestore.instance
+          .collection("messages")
+          .document(_message.senderUid).collection('recent_chats').document(_message.receiverUid).collection("messages").add(map);
+
     });
 
-    _collectionReference = Firestore.instance
-        .collection("messages")
-        .document(widget.receiverUid)
-        .collection(_message.senderUid);
-
-    _collectionReference.add(map).whenComplete(() {
-      print("Messages added to db");
-    });
+//    print("Map : ${map}");
+//    _collectionReference = Firestore.instance
+//        .collection("messages")
+//        .document(_message.senderUid)
+//        .collection(widget.receiverUid);
+//
+//    _collectionReference.add(map).whenComplete(() {
+//      print("Messages added to db");
+//    });
+//
+//    _collectionReference = Firestore.instance
+//        .collection("messages")
+//        .document(widget.receiverUid)
+//        .collection(_message.senderUid);
+//
+//    _collectionReference.add(map).whenComplete(() {
+//      print("Messages added to db");
+//    });
   }
 
   void sendMessage() async {
@@ -274,8 +312,7 @@ class _ChatScreenState extends State<ChatScreen> {
         stream: Firestore.instance
             .collection('messages')
             .document(_senderuid)
-            .collection(widget.receiverUid)
-            .orderBy('timestamp', descending: false)
+            .collection('recent_chats').document(widget.receiverUid).collection('messages')
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -326,47 +363,49 @@ class _ChatScreenState extends State<ChatScreen> {
               SizedBox(
                 width: 10.0,
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  snapshot['senderUid'] == _senderuid
-                      ? new Text(
-                    senderName == null ? "" : senderName,
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.bold),
-                  )
-                      : new Text(
-                    receiverName == null ? "" : receiverName,
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  snapshot['type'] == 'text'
-                      ? new Text(
-                    snapshot['message'],
-                    style: TextStyle(color: Colors.black, fontSize: 14.0),
-                  )
-                      : InkWell(
-                    onTap: (() {
-                      Navigator.push(
-                          context,
-                          new MaterialPageRoute(
-                              builder: (context) => FullScreenImage(photoUrl: snapshot['user_dp'],)));
-                    }),
-                    child: Hero(
-                      tag: snapshot['user_dp'],
-                      child: FadeInImage(
-                        image: NetworkImage(snapshot['user_dp']),
-                        placeholder: AssetImage('assets/blankimage.png'),
-                        width: 200.0,
-                        height: 200.0,
-                      ),
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    snapshot['senderUid'] == _senderuid
+                        ? new Text(
+                      senderName == null ? "" : senderName,
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold),
+                    )
+                        : new Text(
+                      receiverName == null ? "" : receiverName,
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold),
                     ),
-                  )
-                ],
+                    snapshot['type'] == 'text'
+                        ? new Text(
+                      snapshot['message'],
+                      style: TextStyle(color: Colors.black, fontSize: 14.0),
+                    )
+                        : InkWell(
+                      onTap: (() {
+                        Navigator.push(
+                            context,
+                            new MaterialPageRoute(
+                                builder: (context) => FullScreenImage(photoUrl: snapshot['photoUrl'],)));
+                      }),
+                      child: Hero(
+                        tag: snapshot['photoUrl'],
+                        child: FadeInImage(
+                          image: NetworkImage(snapshot['photoUrl']),
+                          placeholder: AssetImage('assets/blankimage.png'),
+                          width: 200.0,
+                          height: 200.0,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               )
             ],
           ),

@@ -4,38 +4,29 @@ import 'package:flutter/material.dart';
 import 'package:lawyer_client_app/constant.dart';
 
 import 'client_chat_page.dart';
-import 'models/message.dart';
+
 
 class ChatList extends StatefulWidget {
-  String receiverUid;
-
-  ChatList(this.receiverUid,{Key key}) : super(key: key);
+  ChatList({Key key}) : super(key: key);
   static final String path = "lib/src/pages/lists/list2.dart";
 
   _ChatListState createState() => _ChatListState();
 }
 
 class _ChatListState extends State<ChatList> {
-  String _senderuid;
-  CollectionReference _collectionReference;
-  String userIdKey = '';
   final primary = Constant.appColor;
   final secondary = Constant.appColor;
   final databaseReference = Firestore.instance;
-  DocumentSnapshot infoSnap;
   String dId = '';
-
-  DocumentSnapshot mRef;
-  Message _message;
+  final lawyerRef = Firestore.instance;
+  final List<DocumentSnapshot> userList= [];
   final List<DocumentSnapshot> LawyerList = [
   ];
-  final List<DocumentSnapshot>infoList = [];
 
   @override
   void initState() {
     // TODO: implement initState
     getData();
-    getUserDetails();
     super.initState();
   }
 
@@ -79,7 +70,7 @@ class _ChatListState extends State<ChatList> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: Center(
-                    child: Text('Chat List',
+                    child: Text('Recent Chats',
                         style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.w800,
@@ -96,6 +87,16 @@ class _ChatListState extends State<ChatList> {
   }
 
   Widget buildList(BuildContext context, int index) {
+    DocumentSnapshot uSnap;
+    String userUid=LawyerList[index]['receiverUid'];
+    for( var i in userList){
+      if(i['user_uid']==userUid)
+      {
+        uSnap=i;
+        break;
+      }
+    }
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
@@ -116,7 +117,7 @@ class _ChatListState extends State<ChatList> {
               borderRadius: BorderRadius.circular(50),
               border: Border.all(width: 3, color: secondary),
               image: DecorationImage(
-                  image: NetworkImage(infoList[index]['user_dp']),
+                  image: NetworkImage(uSnap['user_dp']),
                   fit: BoxFit.fill),
             ),
           ),
@@ -124,13 +125,13 @@ class _ChatListState extends State<ChatList> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(
-                  infoList[index]['username'],
-                  style: TextStyle(
-                      color: primary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18),
-                ),
+//                Text(
+//                  LawyerList[index]['username'],
+//                  style: TextStyle(
+//                      color: primary,
+//                      fontWeight: FontWeight.bold,
+//                      fontSize: 18),
+//                ),
                 SizedBox(
                   height: 6,
                 ),
@@ -160,11 +161,12 @@ class _ChatListState extends State<ChatList> {
                     SizedBox(
                       width: 5,
                     ),
-                    Text(
-                        infoList[index]['description'],
-
-                        style: TextStyle(
-                            color: primary, fontSize: 13, letterSpacing: .3)),
+                    Flexible(
+                      child: Text(
+                          LawyerList[index]['message'],
+                          style: TextStyle(
+                              color: primary, fontSize: 13, letterSpacing: .3)),
+                    ),
                   ],
                 ),
                 Padding(
@@ -175,7 +177,7 @@ class _ChatListState extends State<ChatList> {
                           color: Constant.appColor),
                       child: FlatButton(
                         child: Text(
-                          "Start Session",
+                          "Start Chat",
                           style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
@@ -185,10 +187,10 @@ class _ChatListState extends State<ChatList> {
                           Navigator.push(context, MaterialPageRoute(builder: (
                               context) =>
                               ChatScreen(
-//                              name: LawyerList[index].data['username'],
-//                              photoUrl: LawyerList[index].data['user_dp'],
-//                              receiverUid:
-//                              LawyerList[index].data['client_uid']
+                                  name: LawyerList[index].data['username'],
+                                  photoUrl: LawyerList[index].data['user_dp'],
+                                  receiverUid:
+                                  LawyerList[index].data['client_uid']
                               )));
                         },
                       ),
@@ -202,38 +204,26 @@ class _ChatListState extends State<ChatList> {
   }
 
   void getData() async {
-    try {
-      Firestore.instance
-          .collection('messages')
-          .document(_senderuid)
-          .collection(widget.receiverUid);
+    String uId = (await FirebaseAuth.instance.currentUser()).uid;
+    databaseReference
+        .collection("messages").document(uId).collection("recent_chats").getDocuments()
+        .then((QuerySnapshot snapshot) {
+      snapshot.documents.forEach((documentSNapshot){
+        LawyerList.add(documentSNapshot);
+        print(documentSNapshot.data.toString());
+      });
 
-      print(
-          Firestore.instance
-              .collection('messages')
-              .document(_senderuid)
-              .collection(widget.receiverUid));
-    }
-    catch(e){
+      Firestore.instance.collection('Users').getDocuments().then((userFun){
+        userFun.documents.forEach((someFun){
+          userList.add(someFun);
 
-    }
+        });
+        setState(() {
 
+        });
+      });
+    });
   }
 
-  void getUserDetails() async {
-//    infoSnap = await Firestore.instance.collection("Users").document(userIdKey).get();
-//    LawyerList.add(infoSnap);
-//
-//    databaseReference
-//        .collection("Users").where(mRef.documentID, isEqualTo: userIdKey)
-//        .getDocuments()
-//        .then((QuerySnapshot snapshot) {
-//      snapshot.documents.forEach((f) => infoList.add(f));
-//
-//      setState(() {});
-//    });
-//
-//  }
 
-  }
 }
