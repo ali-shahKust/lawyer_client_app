@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lawyer_client_app/constant.dart';
 
+import 'client_chat_page.dart';
+
 class Session_Page extends StatefulWidget {
   Session_Page({Key key}) : super(key: key);
   static final String path = "lib/src/pages/lists/list2.dart";
@@ -65,7 +67,7 @@ class _Session_PageState extends State<Session_Page> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: Center(
-                    child: Text('Requests',
+                    child: Text('Session',
                         style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.w800,
@@ -179,6 +181,11 @@ class _Session_PageState extends State<Session_Page> {
                             ),
                             onPressed: () {
                               saveSession(LawyerList[index],index);
+                              Navigator.push(context, MaterialPageRoute(builder:(context) => ChatScreen(
+                                  name: LawyerList[index].data['username'],
+                                  photoUrl: LawyerList[index].data['user_dp'],
+                                  receiverUid:
+                                  LawyerList[index].data['client_uid'])));
                             },
                           ),
                         )),
