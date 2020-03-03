@@ -4,6 +4,7 @@ import 'package:lawyer_client_app/client_login_page.dart';
 import 'package:lawyer_client_app/constant.dart';
 import 'package:lawyer_client_app/homepage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 class Client_Signup extends StatefulWidget {
   @override
@@ -14,12 +15,15 @@ class _Client_SignupState extends State<Client_Signup> {
 
   String _email, _password,_name;
   final databaseReference = Firestore.instance;
-
+  ProgressDialog pr;
   final _emailcontroller = TextEditingController();
   final _passwordcontroller = TextEditingController();
   final _namecontroller = TextEditingController();
   @override
   Widget build(BuildContext context) {
+
+    pr = new ProgressDialog(context);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: ListView(
@@ -169,18 +173,18 @@ class _Client_SignupState extends State<Client_Signup> {
                   },
                 ),
               )),
-          SizedBox(
-            height: 20,
-          ),
-          Center(
-            child: Text(
-              "FORGET PASSWORD ?",
-              style: TextStyle(
-                  color: Constant.appColor,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700),
-            ),
-          ),
+//          SizedBox(
+//            height: 20,
+//          ),
+//          Center(
+//            child: Text(
+//              "FORGET PASSWORD ?",
+//              style: TextStyle(
+//                  color: Constant.appColor,
+//                  fontSize: 12,
+//                  fontWeight: FontWeight.w700),
+//            ),
+//          ),
           SizedBox(
             height: 40,
           ),
@@ -224,6 +228,22 @@ class _Client_SignupState extends State<Client_Signup> {
     _name = _namecontroller.text;
 
     try{
+
+      pr.style(
+          message: 'Please Wait...',
+          borderRadius: 10.0,
+          backgroundColor: Colors.white,
+          progressWidget: CircularProgressIndicator(),
+          elevation: 10.0,
+          insetAnimCurve: Curves.easeInOut,
+          progress: 0.0,
+          maxProgress: 100.0,
+          progressTextStyle: TextStyle(
+              color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
+          messageTextStyle: TextStyle(
+              color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600)
+      );
+      await pr.show();
       await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _email, password: _password);
 
       String mUid = (await FirebaseAuth.instance.currentUser()).uid;
@@ -235,11 +255,18 @@ class _Client_SignupState extends State<Client_Signup> {
         'password': _password,
         'user_uid': mUid
       });
+      pr.hide().then((isHidden) {
+        print(isHidden);
+      });
 
 //        Firestore.instance.collection('users').document()
 //            .setData({ 'user_email': _email, 'user_password': _password , 'user_name' : _name});
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ClientHomePage()));
     }catch(e){
+
+      pr.hide().then((isHidden) {
+        print(isHidden);
+      });
       print(e.message);
     }
 
