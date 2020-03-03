@@ -9,7 +9,11 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart'; // For Image Picker
 import 'package:path/path.dart';
 
+import 'homepage.dart';
+
 class Profile_Setting extends StatefulWidget {
+
+
   @override
   _Profile_SettingState createState() => _Profile_SettingState();
 }
@@ -31,7 +35,10 @@ class _Profile_SettingState extends State<Profile_Setting> {
   final _majorcontroller = TextEditingController();
   final _xpcontroller = TextEditingController();
   final _descriptioncontroller = TextEditingController();
+  final _feescontroller = TextEditingController();
   final databaseReference = Firestore.instance;
+
+  final snackBar = SnackBar(content: Text('Successfully Updated!'));
 
   File _image;
   String _uploadedFileURL;
@@ -42,8 +49,21 @@ class _Profile_SettingState extends State<Profile_Setting> {
     super.initState();
   }
 
+
   @override
   Widget build(BuildContext context) {
+    if(mRef != null){
+      _namecontroller.text = mRef['username'];
+      _phonecontroller.text = mRef['phonenumber'];
+      _licencecontroller.text = mRef['licencenumber'];
+      _majorcontroller.text = mRef['type'];
+      _xpcontroller.text = mRef['year_experience'];
+      _feescontroller.text = mRef['fees'];
+      _descriptioncontroller.text = mRef['description'];
+
+    }
+
+
     return Scaffold(
       backgroundColor: Colors.white,
 
@@ -108,6 +128,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
             height: 15,
           ),
           Padding(
+
             padding: EdgeInsets.symmetric(horizontal: 32),
             child: Material(
               elevation: 2.0,
@@ -118,6 +139,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
                 onChanged: (String value) {},
                 cursorColor: Constant.appColor,
                 decoration: InputDecoration(
+                  //  prefixText:mRef['username'] ,
                     hintText: "Name",
                     prefixIcon: Material(
                       elevation: 0,
@@ -246,6 +268,34 @@ class _Profile_SettingState extends State<Profile_Setting> {
             ),
           ),
           SizedBox(
+            height: 25,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 32),
+            child: Material(
+              elevation: 2.0,
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              child: TextField(
+                controller: _feescontroller,
+                onChanged: (String value) {},
+                cursorColor: Constant.appColor,
+                decoration: InputDecoration(
+                    hintText: "Fees Price in \$",
+                    prefixIcon: Material(
+                      elevation: 0,
+                      borderRadius: BorderRadius.all(Radius.circular(30)),
+                      child: Icon(
+                        Icons.attach_money,
+                        color: Constant.appColor,
+                      ),
+                    ),
+                    border: InputBorder.none,
+                    contentPadding:
+                    EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
+              ),
+            ),
+          ),
+          SizedBox(
             height: 20,
           ),
           Padding(
@@ -292,6 +342,8 @@ class _Profile_SettingState extends State<Profile_Setting> {
                   ),
                   onPressed: () {
                     createRecord();
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ClientHomePage()));
+                    Scaffold.of(context).showSnackBar(snackBar);
                   },
                 ),
               )),
@@ -323,6 +375,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
         'year_experience': _xpcontroller.text,
         'type': _majorcontroller.text,
         'description': _descriptioncontroller.text,
+        'fees':_feescontroller.text
       }, merge: true);
 
     }

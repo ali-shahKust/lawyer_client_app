@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lawyer_client_app/client_signup_page.dart';
 import 'package:lawyer_client_app/constant.dart';
-
+import 'package:progress_dialog/progress_dialog.dart';
 import 'client_session_page.dart';
 import 'homepage.dart';
 
@@ -20,9 +20,12 @@ class _Client_LoginState extends State<Client_Login> {
   String _email, _password;
   final _emailcontroller = TextEditingController();
   final _passwordcontroller = TextEditingController();
+  ProgressDialog pr;
 
   @override
   Widget build(BuildContext context) {
+
+    pr = new ProgressDialog(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: ListView(
@@ -199,8 +202,26 @@ class _Client_LoginState extends State<Client_Login> {
     HashMap mMap = new HashMap<String, String>();
 
     try{
+      pr.style(
+          message: 'Please Wait...',
+          borderRadius: 10.0,
+          backgroundColor: Colors.white,
+          progressWidget: CircularProgressIndicator(),
+          elevation: 10.0,
+          insetAnimCurve: Curves.easeInOut,
+          progress: 0.0,
+          maxProgress: 100.0,
+          progressTextStyle: TextStyle(
+              color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
+          messageTextStyle: TextStyle(
+              color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600)
+      );
+      await pr.show();
       await FirebaseAuth.instance.signInWithEmailAndPassword(email:_email , password: _password);
-      Navigator.push(context, MaterialPageRoute(builder: (context) => ClientHomePage()));
+      pr.hide().then((isHidden) {
+        print(isHidden);
+      });
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ClientHomePage()));
     }catch(e){
       print(e.message);
     }
