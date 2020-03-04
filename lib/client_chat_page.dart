@@ -8,14 +8,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-
+import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:lawyer_client_app/pdf_view.dart';
 import 'full_screen_image.dart';
 import 'models/message.dart';
-
+import 'package:file_picker/file_picker.dart';
+import 'package:open_file/open_file.dart';
 class ChatScreen extends StatefulWidget {
   String name;
   String photoUrl;
   String receiverUid;
+
   ChatScreen({this.name, this.photoUrl, this.receiverUid});
 
   _ChatScreenState createState() => _ChatScreenState();
@@ -40,6 +43,7 @@ class _ChatScreenState extends State<ChatScreen> {
   File imageFile;
   StorageReference _storageReference;
   TextEditingController _messageController;
+  final String path='';
 
   @override
   void initState() {
@@ -75,27 +79,33 @@ class _ChatScreenState extends State<ChatScreen> {
   void addMessageToDb(Message message) async {
     print("Message : ${message.message}");
     map = message.toMap();
-    Map mMap = new Map<String , Object>();
-   mMap['timestamp'] =message.timestamp;
-   mMap['message'] = message.message;
-   mMap['senderUid']= message.senderUid;
-   mMap['receiverUid']= message.receiverUid;
-   mMap['type']= message.type;
+    Map mMap = new Map<String, Object>();
+    mMap['timestamp'] = message.timestamp;
+    mMap['message'] = message.message;
+    mMap['senderUid'] = message.senderUid;
+    mMap['receiverUid'] = message.receiverUid;
+    mMap['type'] = message.type;
 
     print("Map : ${map}");
-     Firestore.instance
+    Firestore.instance
         .collection("messages")
-        .document(message.senderUid).collection('recent_chats').document(message.receiverUid).setData(
-       mMap).then((myFun){
+        .document(message.senderUid)
+        .collection('recent_chats')
+        .document(message.receiverUid)
+        .setData(mMap)
+        .then((myFun) {
 //         Map newMap = new Map<String , Object>();
 //         newMap['message'] ='hello';
 //         newMap['hello'] = 'world';
 
-         Firestore.instance
-             .collection("messages")
-             .document(message.senderUid).collection('recent_chats').document(message.receiverUid).collection("messages").add(map);
-
-     });
+      Firestore.instance
+          .collection("messages")
+          .document(message.senderUid)
+          .collection('recent_chats')
+          .document(message.receiverUid)
+          .collection("messages")
+          .add(map);
+    });
 
 //    _collectionReference.add(map).whenComplete(() {
 //    });
@@ -122,22 +132,22 @@ class _ChatScreenState extends State<ChatScreen> {
           key: _formKey,
           child: _senderuid == null
               ? Container(
-            child: CircularProgressIndicator(),
-          )
+                  child: CircularProgressIndicator(),
+                )
               : Column(
-            children: <Widget>[
-              //buildListLayout(),
-              ChatMessagesListWidget(),
-              Divider(
-                height: 20.0,
-                color: Colors.black,
-              ),
-              ChatInputWidget(),
-              SizedBox(
-                height: 10.0,
-              )
-            ],
-          ),
+                  children: <Widget>[
+                    //buildListLayout(),
+                    ChatMessagesListWidget(),
+                    Divider(
+                      height: 20.0,
+                      color: Colors.black,
+                    ),
+                    ChatInputWidget(),
+                    SizedBox(
+                      height: 10.0,
+                    )
+                  ],
+                ),
         ));
   }
 
@@ -157,6 +167,19 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               onPressed: () {
                 pickImage();
+              },
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: IconButton(
+              splashColor: Colors.white,
+              icon: Icon(
+                Icons.attach_file,
+                color: Colors.black,
+              ),
+              onPressed: () {
+                pickDoc();
               },
             ),
           ),
@@ -200,7 +223,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<String> pickImage() async {
     var selectedImage =
-    await ImagePicker.pickImage(source: ImageSource.gallery);
+        await ImagePicker.pickImage(source: ImageSource.gallery);
     setState(() {
       imageFile = selectedImage;
     });
@@ -215,8 +238,22 @@ class _ChatScreenState extends State<ChatScreen> {
     return url;
   }
 
-  void uploadImageToDb(String downloadUrl) {
+  Future<String> pickDoc() async {
+    File file =
+        await FilePicker.getFile(type: FileType.CUSTOM, fileExtension: 'pdf');
 
+    _storageReference = FirebaseStorage.instance
+        .ref()
+        .child('${DateTime.now().millisecondsSinceEpoch}');
+    StorageUploadTask storageUploadTask = _storageReference.putFile(file);
+    var url = await (await storageUploadTask.onComplete).ref.getDownloadURL();
+
+    print("URL: $url");
+    uploadDocumentToDb(url);
+    return url;
+  }
+
+  void uploadImageToDb(String downloadUrl) {
     _message = Message.withoutMessage(
         receiverUid: widget.receiverUid,
         senderUid: _senderuid,
@@ -224,6 +261,46 @@ class _ChatScreenState extends State<ChatScreen> {
         timestamp: FieldValue.serverTimestamp(),
         type: 'image');
 
+    var map = Map<String, dynamic>();
+//    map['senderUid'] = _message.senderUid;
+//    map['receiverUid'] = _message.receiverUid;
+//    map['type'] = _message.type;
+//    map['timestamp'] = _message.timestamp;
+    map['photoUrl'] = _message.photoUrl;
+    map['timestamp'] = Timestamp.now();
+    map['senderUid'] = _message.senderUid;
+    map['receiverUid'] = _message.receiverUid;
+    map['type'] = _message.type;
+
+    print("Map : ${map}");
+    Firestore.instance
+        .collection("messages")
+        .document(_message.senderUid)
+        .collection('recent_chats')
+        .document(_message.receiverUid)
+        .setData(map)
+        .then((myFun) {
+//         Map newMap = new Map<String , Object>();
+//         newMap['message'] ='hello';
+//         newMap['hello'] = 'world';
+
+      Firestore.instance
+          .collection("messages")
+          .document(_message.senderUid)
+          .collection('recent_chats')
+          .document(_message.receiverUid)
+          .collection("messages")
+          .add(map);
+    });
+  }
+
+  void uploadDocumentToDb(String downloadUrl) {
+    _message = Message.withoutMessage(
+        receiverUid: widget.receiverUid,
+        senderUid: _senderuid,
+        photoUrl: downloadUrl,
+        timestamp: FieldValue.serverTimestamp(),
+        type: 'doc');
 
     var map = Map<String, dynamic>();
 //    map['senderUid'] = _message.senderUid;
@@ -231,44 +308,31 @@ class _ChatScreenState extends State<ChatScreen> {
 //    map['type'] = _message.type;
 //    map['timestamp'] = _message.timestamp;
     map['photoUrl'] = _message.photoUrl;
-    map['timestamp'] =Timestamp.now();
-    map['senderUid']= _message.senderUid;
-    map['receiverUid']= _message.receiverUid;
-    map['type']= _message.type;
+    map['timestamp'] = Timestamp.now();
+    map['senderUid'] = _message.senderUid;
+    map['receiverUid'] = _message.receiverUid;
+    map['type'] = _message.type;
 
     print("Map : ${map}");
     Firestore.instance
         .collection("messages")
-        .document(_message.senderUid).collection('recent_chats').document(_message.receiverUid).setData(
-        map).then((myFun){
+        .document(_message.senderUid)
+        .collection('recent_chats')
+        .document(_message.receiverUid)
+        .setData(map)
+        .then((myFun) {
 //         Map newMap = new Map<String , Object>();
 //         newMap['message'] ='hello';
 //         newMap['hello'] = 'world';
 
       Firestore.instance
           .collection("messages")
-          .document(_message.senderUid).collection('recent_chats').document(_message.receiverUid).collection("messages").add(map);
-
+          .document(_message.senderUid)
+          .collection('recent_chats')
+          .document(_message.receiverUid)
+          .collection("messages")
+          .add(map);
     });
-
-//    print("Map : ${map}");
-//    _collectionReference = Firestore.instance
-//        .collection("messages")
-//        .document(_message.senderUid)
-//        .collection(widget.receiverUid);
-//
-//    _collectionReference.add(map).whenComplete(() {
-//      print("Messages added to db");
-//    });
-//
-//    _collectionReference = Firestore.instance
-//        .collection("messages")
-//        .document(widget.receiverUid)
-//        .collection(_message.senderUid);
-//
-//    _collectionReference.add(map).whenComplete(() {
-//      print("Messages added to db");
-//    });
   }
 
   void sendMessage() async {
@@ -295,24 +359,27 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<DocumentSnapshot> getSenderPhotoUrl(String uid) {
     var senderDocumentSnapshot =
-    Firestore.instance.collection('Lawyers').document(uid).get();
+        Firestore.instance.collection('Lawyers').document(uid).get();
     return senderDocumentSnapshot;
   }
 
   Future<DocumentSnapshot> getReceiverPhotoUrl(String uid) {
     var receiverDocumentSnapshot =
-    Firestore.instance.collection('Users').document(uid).get();
+        Firestore.instance.collection('Users').document(uid).get();
     return receiverDocumentSnapshot;
   }
 
   Widget ChatMessagesListWidget() {
+
     print("SENDERUID : $_senderuid");
     return Flexible(
       child: StreamBuilder(
         stream: Firestore.instance
             .collection('messages')
             .document(_senderuid)
-            .collection('recent_chats').document(widget.receiverUid).collection('messages')
+            .collection('recent_chats')
+            .document(widget.receiverUid)
+            .collection('messages')
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -344,22 +411,23 @@ class _ChatScreenState extends State<ChatScreen> {
         Padding(
           padding: const EdgeInsets.all(12.0),
           child: Row(
-            mainAxisAlignment: snapshot['senderUid'] == _senderuid?
-            MainAxisAlignment.end : MainAxisAlignment.start,
+            mainAxisAlignment: snapshot['senderUid'] == _senderuid
+                ? MainAxisAlignment.end
+                : MainAxisAlignment.start,
             children: <Widget>[
               snapshot['senderUid'] == _senderuid
                   ? CircleAvatar(
-                backgroundImage: senderPhotoUrl == null
-                    ? AssetImage('assets/blankimage.png')
-                    : NetworkImage(senderPhotoUrl),
-                radius: 20.0,
-              )
+                      backgroundImage: senderPhotoUrl == null
+                          ? AssetImage('assets/blankimage.png')
+                          : NetworkImage(senderPhotoUrl),
+                      radius: 20.0,
+                    )
                   : CircleAvatar(
-                backgroundImage: receiverPhotoUrl == null
-                    ? AssetImage('assets/blankimage.png')
-                    : NetworkImage(receiverPhotoUrl),
-                radius: 20.0,
-              ),
+                      backgroundImage: receiverPhotoUrl == null
+                          ? AssetImage('assets/blankimage.png')
+                          : NetworkImage(receiverPhotoUrl),
+                      radius: 20.0,
+                    ),
               SizedBox(
                 width: 10.0,
               ),
@@ -369,41 +437,65 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: <Widget>[
                     snapshot['senderUid'] == _senderuid
                         ? new Text(
-                      senderName == null ? "" : senderName,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.bold),
-                    )
+                            senderName == null ? "" : senderName,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold),
+                          )
                         : new Text(
-                      receiverName == null ? "" : receiverName,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.bold),
-                    ),
+                            receiverName == null ? "" : receiverName,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold),
+                          ),
                     snapshot['type'] == 'text'
                         ? new Text(
-                      snapshot['message'],
-                      style: TextStyle(color: Colors.black, fontSize: 14.0),
-                    )
-                        : InkWell(
-                      onTap: (() {
-                        Navigator.push(
-                            context,
-                            new MaterialPageRoute(
-                                builder: (context) => FullScreenImage(photoUrl: snapshot['photoUrl'],)));
-                      }),
-                      child: Hero(
-                        tag: snapshot['photoUrl'],
-                        child: FadeInImage(
-                          image: NetworkImage(snapshot['photoUrl']),
-                          placeholder: AssetImage('assets/blankimage.png'),
-                          width: 200.0,
-                          height: 200.0,
-                        ),
-                      ),
-                    )
+                            snapshot['message'],
+                            style:
+                                TextStyle(color: Colors.black, fontSize: 14.0),
+                          )
+                        : snapshot['type'] == 'doc'
+                            ? Container(
+                                height: 50,
+                                width: 50,
+                                child: IconButton(
+                                  onPressed: () {
+                                    OpenFile.open(snapshot['photoUrl']);
+                                    Navigator.push(
+                                        context,
+                                        new MaterialPageRoute(
+                                            builder: (context) => Pdf_viewer(
+                                              myUrl: snapshot['photoUrl'],
+                                            )));
+                                  },
+                                  icon: Icon(
+                                    Icons.picture_as_pdf,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              )
+                            : InkWell(
+                                onTap: (() {
+                                  Navigator.push(
+                                      context,
+                                      new MaterialPageRoute(
+                                          builder: (context) => FullScreenImage(
+                                                photoUrl: snapshot['photoUrl'],
+                                              )));
+                                }),
+                                child: Hero(
+                                  tag: snapshot['photoUrl'],
+                                  child: FadeInImage(
+                                    image: NetworkImage(snapshot['photoUrl']),
+                                    placeholder:
+                                        AssetImage('assets/blankimage.png'),
+                                    width: 200.0,
+                                    height: 200.0,
+                                  ),
+                                ),
+                              )
                   ],
                 ),
               )

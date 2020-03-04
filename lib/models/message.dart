@@ -14,6 +14,7 @@ class Message {
   Message({this.senderUid, this.receiverUid, this.type, this.message, this.timestamp});
   Message.withoutMessage({this.receiverUid, this.senderUid, this.type, this.timestamp, this.photoUrl});
 
+
   Map toMap() {
     var map = Map<String, dynamic>();
     map['senderUid'] = this.senderUid;
