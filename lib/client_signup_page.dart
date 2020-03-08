@@ -6,6 +6,8 @@ import 'package:lawyer_client_app/homepage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 
+import 'Profile_Setting.dart';
+
 class Client_Signup extends StatefulWidget {
   @override
   _Client_SignupState createState() => _Client_SignupState();
@@ -19,6 +21,8 @@ class _Client_SignupState extends State<Client_Signup> {
   final _emailcontroller = TextEditingController();
   final _passwordcontroller = TextEditingController();
   final _namecontroller = TextEditingController();
+  final _liccontroller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
 
@@ -128,6 +132,36 @@ class _Client_SignupState extends State<Client_Signup> {
               elevation: 2.0,
               borderRadius: BorderRadius.all(Radius.circular(10)),
               child: TextField(
+
+                keyboardType: TextInputType.text,
+                controller: _liccontroller,
+                onChanged: (String value) {},
+                cursorColor: Constant.appColor,
+                decoration: InputDecoration(
+                    hintText: "License Number",
+                    prefixIcon: Material(
+                      elevation: 0,
+                      borderRadius: BorderRadius.all(Radius.circular(30)),
+                      child: Icon(
+                        Icons.lock,
+                        color: Constant.appColor,
+                      ),
+                    ),
+                    border: InputBorder.none,
+                    contentPadding:
+                    EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 32),
+            child: Material(
+              elevation: 2.0,
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              child: TextField(
                 obscureText: true,
                 controller: _passwordcontroller,
                 onChanged: (String value) {},
@@ -168,23 +202,10 @@ class _Client_SignupState extends State<Client_Signup> {
                   onPressed: () {
                     setState(() {
                       signUp();
-//                      Navigator.push(context, MaterialPageRoute(builder: (context) => Client_HomePage()));
                     });
                   },
                 ),
               )),
-//          SizedBox(
-//            height: 20,
-//          ),
-//          Center(
-//            child: Text(
-//              "FORGET PASSWORD ?",
-//              style: TextStyle(
-//                  color: Constant.appColor,
-//                  fontSize: 12,
-//                  fontWeight: FontWeight.w700),
-//            ),
-//          ),
           SizedBox(
             height: 40,
           ),
@@ -253,7 +274,8 @@ class _Client_SignupState extends State<Client_Signup> {
         'username': _namecontroller.text,
         'email': _email,
         'password': _password,
-        'user_uid': mUid
+        'user_uid': mUid,
+         'licencenumber': _liccontroller.text
       });
       pr.hide().then((isHidden) {
         print(isHidden);
@@ -261,7 +283,7 @@ class _Client_SignupState extends State<Client_Signup> {
 
 //        Firestore.instance.collection('users').document()
 //            .setData({ 'user_email': _email, 'user_password': _password , 'user_name' : _name});
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ClientHomePage()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Profile_Setting()));
     }catch(e){
 
       pr.hide().then((isHidden) {

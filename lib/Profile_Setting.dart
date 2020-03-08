@@ -31,7 +31,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
   DocumentSnapshot mRef;
   final _namecontroller = TextEditingController();
   final _phonecontroller = TextEditingController();
-  final _licencecontroller = TextEditingController();
+//  final _licencecontroller = TextEditingController();
   final _majorcontroller = TextEditingController();
   final _xpcontroller = TextEditingController();
   final _descriptioncontroller = TextEditingController();
@@ -55,7 +55,6 @@ class _Profile_SettingState extends State<Profile_Setting> {
     if(mRef != null){
       _namecontroller.text = mRef['username'];
       _phonecontroller.text = mRef['phonenumber'];
-      _licencecontroller.text = mRef['licencenumber'];
       _majorcontroller.text = mRef['type'];
       _xpcontroller.text = mRef['year_experience'];
       _feescontroller.text = mRef['fees'];
@@ -183,34 +182,29 @@ class _Profile_SettingState extends State<Profile_Setting> {
               ),
             ),
           ),
-          SizedBox(
-            height: 20,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32),
-            child: Material(
-              elevation: 2.0,
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              child: TextField(
-                controller: _licencecontroller,
-                onChanged: (String value) {},
-                cursorColor: Constant.appColor,
-                decoration: InputDecoration(
-                    hintText: "Licence Nummber",
-                    prefixIcon: Material(
-                      elevation: 0,
-                      borderRadius: BorderRadius.all(Radius.circular(30)),
-                      child: Icon(
-                        Icons.library_books,
-                        color: Constant.appColor,
-                      ),
-                    ),
-                    border: InputBorder.none,
-                    contentPadding:
-                    EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
-              ),
-            ),
-          ),
+
+//          Padding(
+//            padding: EdgeInsets.symmetric(horizontal: 32),
+//            child: Material(
+//
+//              elevation: 2.0,
+//              borderRadius: BorderRadius.all(Radius.circular(10)),
+//
+//              child: Text( 'Licence# ${mRef['licencenumber']}',
+//                style: TextStyle(
+//
+//                ),
+//              )
+//                 ,
+////              textStyle: TextStyle(
+////
+////                fontSize: 28,
+////                color: Colors.black,
+////
+////              ),
+//
+//            ),
+//          ),
           SizedBox(
             height: 20,
           ),
@@ -324,7 +318,36 @@ class _Profile_SettingState extends State<Profile_Setting> {
                     EdgeInsets.symmetric(horizontal: 25, vertical: 13)),
               ),
             ),
+          ), SizedBox(
+            height: 20,
           ),
+          Padding(
+              padding: EdgeInsets.symmetric(horizontal: 32),
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    color: Colors.grey.shade50),
+                child: FlatButton(
+
+                  child: Row(
+                    children: <Widget>[
+                      Icon(Icons.library_books,
+                        color: Constant.appColor,
+                      ),
+                      SizedBox(width: 12,),
+                      Text(
+                        "Lic# ${mRef['licencenumber']}",
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12),
+                      ),
+                    ],
+                  ),
+
+                ),
+              )),
+          SizedBox(height: 20,),
           Padding(
               padding: EdgeInsets.symmetric(horizontal: 32),
               child: Container(
@@ -371,7 +394,6 @@ class _Profile_SettingState extends State<Profile_Setting> {
       await databaseReference.collection("Lawyers").document(mUid).setData({
         'username': _namecontroller.text,
         'phonenumber': _phonecontroller.text,
-        'licencenumber': _licencecontroller.text,
         'year_experience': _xpcontroller.text,
         'type': _majorcontroller.text,
         'description': _descriptioncontroller.text,
