@@ -132,8 +132,7 @@ class _Client_SignupState extends State<Client_Signup> {
               elevation: 2.0,
               borderRadius: BorderRadius.all(Radius.circular(10)),
               child: TextField(
-
-                keyboardType: TextInputType.text,
+                keyboardType: TextInputType.number,
                 controller: _liccontroller,
                 onChanged: (String value) {},
                 cursorColor: Constant.appColor,

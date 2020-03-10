@@ -163,6 +163,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
               elevation: 2.0,
               borderRadius: BorderRadius.all(Radius.circular(10)),
               child: TextField(
+                maxLength: 10,
                 controller: _phonecontroller,
                 onChanged: (String value) {},
                 cursorColor: Constant.appColor,
