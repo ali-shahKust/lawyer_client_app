@@ -7,7 +7,7 @@ import 'package:lawyer_client_app/constant.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'client_session_page.dart';
 import 'homepage.dart';
-
+import 'package:fluttertoast/fluttertoast.dart';
 class Client_Login extends StatefulWidget {
   @override
   _Client_LoginState createState() => _Client_LoginState();
@@ -226,7 +226,18 @@ class _Client_LoginState extends State<Client_Login> {
       pr.hide().then((isHidden) {
         print(isHidden);
       });
+
       print(e.message);
+      String getmessage = e.message;
+      Fluttertoast.showToast(
+          msg: getmessage,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIos: 1,
+          backgroundColor: Colors.grey.shade200,
+          textColor: Colors.black,
+          fontSize: 16.0
+      );
     }
   }
 

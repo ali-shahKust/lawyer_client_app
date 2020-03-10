@@ -3,12 +3,14 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lawyer_client_app/client_login_page.dart';
 import 'package:lawyer_client_app/constant.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart'; // For Image Picker
 import 'package:path/path.dart';
 
+import 'Chat_list.dart';
 import 'homepage.dart';
 
 class Profile_Setting extends StatefulWidget {
@@ -19,6 +21,8 @@ class Profile_Setting extends StatefulWidget {
 }
 
 class _Profile_SettingState extends State<Profile_Setting> {
+
+
 
   bool isloading = true;
   String dropdownValue = 'Major';
@@ -38,7 +42,6 @@ class _Profile_SettingState extends State<Profile_Setting> {
   final _feescontroller = TextEditingController();
   final databaseReference = Firestore.instance;
 
-  final snackBar = SnackBar(content: Text('Successfully Updated!'));
 
   File _image;
   String _uploadedFileURL;
@@ -61,6 +64,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
       _descriptioncontroller.text = mRef['description'];
 
     }
+
 
 
     return Scaffold(
@@ -184,28 +188,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
             ),
           ),
 
-//          Padding(
-//            padding: EdgeInsets.symmetric(horizontal: 32),
-//            child: Material(
-//
-//              elevation: 2.0,
-//              borderRadius: BorderRadius.all(Radius.circular(10)),
-//
-//              child: Text( 'Licence# ${mRef['licencenumber']}',
-//                style: TextStyle(
-//
-//                ),
-//              )
-//                 ,
-////              textStyle: TextStyle(
-////
-////                fontSize: 28,
-////                color: Colors.black,
-////
-////              ),
-//
-//            ),
-//          ),
+
           SizedBox(
             height: 20,
           ),
@@ -367,7 +350,6 @@ class _Profile_SettingState extends State<Profile_Setting> {
                   onPressed: () {
                     createRecord();
                     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ClientHomePage()));
-                    Scaffold.of(context).showSnackBar(snackBar);
                   },
                 ),
               )),
@@ -400,7 +382,15 @@ class _Profile_SettingState extends State<Profile_Setting> {
         'description': _descriptioncontroller.text,
         'fees':_feescontroller.text
       }, merge: true);
-
+      Fluttertoast.showToast(
+          msg: "Profile Updated",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIos: 1,
+          backgroundColor: Colors.grey.shade200,
+          textColor: Colors.black,
+          fontSize: 16.0
+      );
     }
     catch (e) {
       print(e.message);
@@ -428,6 +418,15 @@ class _Profile_SettingState extends State<Profile_Setting> {
 
          'user_dp': url,
        });
+       Fluttertoast.showToast(
+           msg: 'Profile Picture Updated',
+           toastLength: Toast.LENGTH_SHORT,
+           gravity: ToastGravity.CENTER,
+           timeInSecForIos: 1,
+           backgroundColor: Colors.grey.shade200,
+           textColor: Colors.black,
+           fontSize: 16.0
+       );
        setState(() {
 
        });

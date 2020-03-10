@@ -1,7 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:lawyer_client_app/constant.dart';
+
+import 'Chat_list.dart';
+import 'Profile_Setting.dart';
+import 'client_login_page.dart';
 
 class Request_Page extends StatefulWidget {
   Request_Page({Key key}) : super(key: key);
@@ -17,10 +22,16 @@ class _Request_PageState extends State<Request_Page> {
   final List<DocumentSnapshot> LawyerList = [
   ];
 
+  final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
+  final Color active = Colors.white;
+  final Color divider = Colors.white;
+  String myName = '';
+  String abtMe = '';
+  String myDp = '';
   @override
   void initState() {
     getData();
-
+    getinFo();
     super.initState();
   }
 
@@ -29,6 +40,8 @@ class _Request_PageState extends State<Request_Page> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xfff0f0f0),
+      key: _key,
+      drawer: _buildDrawer(),
       body: SingleChildScrollView(
         child: Container(
           height: MediaQuery
@@ -62,16 +75,31 @@ class _Request_PageState extends State<Request_Page> {
                     borderRadius: BorderRadius.only(
                         bottomLeft: Radius.circular(30),
                         bottomRight: Radius.circular(30))),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
-                  child: Center(
-                    child: Text('Requests',
-                        style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white)
+                child: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.menu,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          _key.currentState.openDrawer();
+                        },
+                      ),
                     ),
-                  ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      child: Center(
+                        child: Text('Request',
+                            style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white)),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Container(
@@ -237,7 +265,16 @@ class _Request_PageState extends State<Request_Page> {
     });
   }
 
+  void getinFo() async {
+    DocumentSnapshot mRef = await Firestore.instance.collection("Lawyers").document((await FirebaseAuth.instance.currentUser()).uid).get();
+    setState(() {
+      myName = mRef['username'];
+      myDp = mRef['user_dp'];
+      abtMe = mRef['description'];
 
+
+    });
+  }
   void deleteData(String documentId, int index) {
     try {
       databaseReference
@@ -252,5 +289,115 @@ class _Request_PageState extends State<Request_Page> {
     } catch (e) {
       print(e.toString());
     }
+  }
+  _buildDrawer() {
+    final String image = "images/1.jpg";
+    return ClipPath(
+      clipper: OvalRightBorderClipper(),
+      child: Container(
+        padding: const EdgeInsets.only(left: 16.0, right: 40),
+        decoration: BoxDecoration(
+            color: primary, boxShadow: [BoxShadow(color: Colors.black45)]),
+        width: 300,
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Container(
+                  height: 90,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient:
+                      LinearGradient(colors: [active, Colors.white30])),
+                  child: CircleAvatar(
+                    radius: 40,
+                    backgroundImage: myDp == null
+                        ? AssetImage('/images/1.jpg')
+                        : NetworkImage(myDp),
+                  ),
+                ),
+                SizedBox(height: 5.0),
+                Text(
+                  myName,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w600),
+                ),
+                abtMe == null
+                    ? Text('No Details')
+                    : Text(
+                  abtMe,
+                  style: TextStyle(color: active, fontSize: 16.0),
+                ),
+                SizedBox(height: 30.0),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => Chat_List()));
+                  },
+                  child: _buildRow(
+                    Icons.message,
+                    "Chat",
+                  ),
+                ),
+                _buildDivider(),
+                GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Profile_Setting()));
+                    },
+                    child: _buildRow(
+                      Icons.face,
+                      "Edit profile",
+                    )),
+                _buildDivider(),
+                GestureDetector(
+                    onTap: () {
+                      FirebaseAuth.instance.signOut();
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Client_Login()));
+                    },
+                    child: _buildRow(
+                      Icons.label_outline,
+                      "Logout",
+                    )),
+                _buildDivider(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Divider _buildDivider() {
+    return Divider(
+      color: divider,
+    );
+  }
+
+  Widget _buildRow(IconData icon, String title, {bool showBadge = false}) {
+    final TextStyle tStyle = TextStyle(color: active, fontSize: 16.0);
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
+      child: Row(children: [
+        Icon(
+          icon,
+          color: active,
+        ),
+        SizedBox(width: 10.0),
+        Text(
+          title,
+          style: tStyle,
+        ),
+        Spacer(),
+      ]),
+    );
   }
 }
