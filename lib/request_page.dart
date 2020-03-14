@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:lawyer_client_app/constant.dart';
-
 import 'Chat_list.dart';
 import 'Profile_Setting.dart';
 import 'client_login_page.dart';
