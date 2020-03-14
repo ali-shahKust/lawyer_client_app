@@ -236,7 +236,7 @@ class _ClientHomePageState extends State<ClientHomePage> {
                   child: CircleAvatar(
                     radius: 40,
                     backgroundImage: myDp == null
-                        ? AssetImage('/images/1.jpg')
+                        ? AssetImage('images/1.jpg')
                         : NetworkImage(myDp),
                   ),
                 ),

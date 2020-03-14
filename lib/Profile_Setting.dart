@@ -95,7 +95,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
                               backgroundColor: Colors.white,
 
                               backgroundImage: mRef['user_dp'] == null
-                                  ? AssetImage('/images/1.jpg')
+                                  ? AssetImage('images/profile.png')
                                   : NetworkImage(mRef['user_dp']),
 
                             ),
@@ -104,8 +104,9 @@ class _Profile_SettingState extends State<Profile_Setting> {
                       Padding(
                         padding: EdgeInsets.all(4),
                       ),
+                      mRef['username'] == null ? Text('No Data'):
                       Text(
-                        mName,
+                        mRef['username'],
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w500,
@@ -115,6 +116,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
                       Padding(
                         padding: EdgeInsets.all(4),
                       ),
+                      mRef['type'] == null ? Text('No Details'):
                       Text(
                         mType,
                         style: TextStyle(

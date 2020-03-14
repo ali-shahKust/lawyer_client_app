@@ -21,7 +21,7 @@ class _Request_PageState extends State<Request_Page> {
   final databaseReference = Firestore.instance;
   final List<DocumentSnapshot> LawyerList = [
   ];
-
+  MediaQueryData queryData;
   final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
   final Color active = Colors.white;
   final Color divider = Colors.white;
@@ -38,6 +38,8 @@ class _Request_PageState extends State<Request_Page> {
 
   @override
   Widget build(BuildContext context) {
+
+    queryData = MediaQuery.of(context);
     return Scaffold(
       backgroundColor: Color(0xfff0f0f0),
       key: _key,
@@ -126,7 +128,7 @@ class _Request_PageState extends State<Request_Page> {
         color: Colors.white,
       ),
       width: double.infinity,
-      height: 200,
+      height:250,
       margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       child: Row(
@@ -146,6 +148,7 @@ class _Request_PageState extends State<Request_Page> {
           ),
           Expanded(
             child: Column(
+
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
@@ -183,9 +186,11 @@ class _Request_PageState extends State<Request_Page> {
                     SizedBox(
                       width: 5,
                     ),
-                    Text(LawyerList[index]['description'],
-                        style: TextStyle(
-                            color: primary, fontSize: 13, letterSpacing: .3)),
+                    Flexible(
+                      child: Text(LawyerList[index]['description'],
+                          style: TextStyle(
+                              color: primary, fontSize: 13, letterSpacing: .3)),
+                    ),
                   ],
                 ),
                 Row(
@@ -313,7 +318,7 @@ class _Request_PageState extends State<Request_Page> {
                   child: CircleAvatar(
                     radius: 40,
                     backgroundImage: myDp == null
-                        ? AssetImage('/images/1.jpg')
+                        ? AssetImage('images/1.jpg')
                         : NetworkImage(myDp),
                   ),
                 ),
