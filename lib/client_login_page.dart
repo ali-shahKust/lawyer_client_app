@@ -15,7 +15,7 @@ class Client_Login extends StatefulWidget {
 
 class _Client_LoginState extends State<Client_Login> {
 
-
+//Variable
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String _email, _password;
   final _emailcontroller = TextEditingController();
@@ -24,7 +24,7 @@ class _Client_LoginState extends State<Client_Login> {
 
   @override
   Widget build(BuildContext context) {
-
+//Assigning ProgressBar
     pr = new ProgressDialog(context);
     return Scaffold(
       backgroundColor: Colors.white,
@@ -146,18 +146,7 @@ class _Client_LoginState extends State<Client_Login> {
                   },
                 ),
               )),
-//          SizedBox(
-//            height: 20,
-//          ),
-//          Center(
-//            child: Text(
-//              "FORGET PASSWORD ?",
-//              style: TextStyle(
-//                  color: Constant.appColor,
-//                  fontSize: 12,
-//                  fontWeight: FontWeight.w700),
-//            ),
-//          ),
+
           SizedBox(
             height: 40,
           ),
@@ -194,12 +183,11 @@ class _Client_LoginState extends State<Client_Login> {
     );
   }
 
+  //Validate user and Log in User
   Future<void> signIn() async {
 
     _email = _emailcontroller.text;
     _password = _passwordcontroller.text;
-
-    HashMap mMap = new HashMap<String, String>();
 
     try{
       pr.style(
@@ -217,6 +205,8 @@ class _Client_LoginState extends State<Client_Login> {
               color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600)
       );
       await pr.show();
+
+      //Validate User
       await FirebaseAuth.instance.signInWithEmailAndPassword(email:_email , password: _password);
       pr.hide().then((isHidden) {
         print(isHidden);
@@ -226,7 +216,6 @@ class _Client_LoginState extends State<Client_Login> {
       pr.hide().then((isHidden) {
         print(isHidden);
       });
-
       print(e.message);
       String getmessage = e.message;
       Fluttertoast.showToast(

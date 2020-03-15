@@ -7,6 +7,7 @@ import 'Chat_list.dart';
 import 'Profile_Setting.dart';
 import 'client_login_page.dart';
 
+//In This Class we will be able To see Request We have Received
 class Request_Page extends StatefulWidget {
   Request_Page({Key key}) : super(key: key);
   static final String path = "lib/src/pages/lists/list2.dart";
@@ -15,6 +16,8 @@ class Request_Page extends StatefulWidget {
 }
 
 class _Request_PageState extends State<Request_Page> {
+
+  //Variables
   final primary = Constant.appColor;
   final secondary = Constant.appColor;
   final databaseReference = Firestore.instance;
@@ -34,7 +37,7 @@ class _Request_PageState extends State<Request_Page> {
     super.initState();
   }
 
-
+//Basic Structure of Current Screen
   @override
   Widget build(BuildContext context) {
 
@@ -120,6 +123,7 @@ class _Request_PageState extends State<Request_Page> {
     );
   }
 
+  //Build A List Of Received Request
   Widget buildList(BuildContext context, int index) {
     return Container(
       decoration: BoxDecoration(
@@ -248,6 +252,7 @@ class _Request_PageState extends State<Request_Page> {
   }
 
 
+  //Get Data From Database
   void getData() async {
     String uId = (await FirebaseAuth.instance.currentUser()).uid;
     databaseReference
@@ -259,7 +264,7 @@ class _Request_PageState extends State<Request_Page> {
       setState(() {});
     });
   }
-
+//Save  Request to session
   void saveSession(DocumentSnapshot sessionShot ,int index) {
     Firestore.instance
         .collection('My Session')
@@ -268,7 +273,7 @@ class _Request_PageState extends State<Request_Page> {
           deleteData(sessionShot.documentID, index);
     });
   }
-
+//Get Our Details from database
   void getinFo() async {
     DocumentSnapshot mRef = await Firestore.instance.collection("Lawyers").document((await FirebaseAuth.instance.currentUser()).uid).get();
     setState(() {
@@ -279,6 +284,7 @@ class _Request_PageState extends State<Request_Page> {
 
     });
   }
+  //Delete Request
   void deleteData(String documentId, int index) {
     try {
       databaseReference
@@ -294,6 +300,7 @@ class _Request_PageState extends State<Request_Page> {
       print(e.toString());
     }
   }
+  //Side Navigation
   _buildDrawer() {
     final String image = "images/1.jpg";
     return ClipPath(

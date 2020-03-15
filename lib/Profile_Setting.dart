@@ -359,7 +359,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
       ),
     );
   }
-
+//Get data From Database
   void getData() async {
     mRef = await Firestore.instance
         .collection("Lawyers")
@@ -371,7 +371,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
       mType = mRef['type'];
     });
   }
-
+//update User Profile
   void createRecord() async {
     try {
       String mUid = (await FirebaseAuth.instance.currentUser()).uid;
@@ -400,7 +400,7 @@ class _Profile_SettingState extends State<Profile_Setting> {
   }
 
   FirebaseStorage _storage = FirebaseStorage.instance;
-
+//Upload Profile Picture To Database
   Future<Uri> uploadPic() async {
 
     //Get the file from the image picker and store it

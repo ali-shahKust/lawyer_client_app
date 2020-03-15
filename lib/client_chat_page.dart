@@ -15,6 +15,8 @@ import 'models/message.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:open_file/open_file.dart';
 class ChatScreen extends StatefulWidget {
+
+  //Variables For Receive profile
   String name;
   String photoUrl;
   String receiverUid;
@@ -25,6 +27,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  //Variables
   DocumentSnapshot mRef;
   Message _message;
   String timeStamp;
@@ -45,6 +48,8 @@ class _ChatScreenState extends State<ChatScreen> {
   TextEditingController _messageController;
   final String path='';
 
+
+  //On start this function will be called
   @override
   void initState() {
     super.initState();
@@ -76,6 +81,7 @@ class _ChatScreenState extends State<ChatScreen> {
     subscription?.cancel();
   }
 
+  //Add message to database
   void addMessageToDb(Message message) async {
     print("Message : ${message.message}");
     map = message.toMap();
@@ -94,10 +100,6 @@ class _ChatScreenState extends State<ChatScreen> {
         .document(message.receiverUid)
         .setData(mMap)
         .then((myFun) {
-//         Map newMap = new Map<String , Object>();
-//         newMap['message'] ='hello';
-//         newMap['hello'] = 'world';
-
       Firestore.instance
           .collection("messages")
           .document(message.senderUid)
@@ -106,19 +108,6 @@ class _ChatScreenState extends State<ChatScreen> {
           .collection("messages")
           .add(map);
     });
-
-//    _collectionReference.add(map).whenComplete(() {
-//    });
-
-//    _collectionReference = Firestore.instance
-//        .collection("messages")
-//        .document(widget.receiverUid)
-//        .collection(message.senderUid);
-//
-//    _collectionReference.add(map).whenComplete(() {
-//      print("Messages added to db");
-//    });
-
     _messageController.text = "";
   }
 
@@ -151,6 +140,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ));
   }
 
+  //Chat Input Design
   Widget ChatInputWidget() {
     return Container(
       height: 55.0,
@@ -220,7 +210,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
-
+//Pick Image From Gallary
   Future<String> pickImage() async {
     var selectedImage =
         await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -238,6 +228,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return url;
   }
 
+  //Pic Document
   Future<String> pickDoc() async {
     File file =
         await FilePicker.getFile(type: FileType.CUSTOM, fileExtension: 'pdf');
@@ -253,6 +244,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return url;
   }
 
+  //Upload Image to database
   void uploadImageToDb(String downloadUrl) {
     _message = Message.withoutMessage(
         receiverUid: widget.receiverUid,
@@ -260,18 +252,12 @@ class _ChatScreenState extends State<ChatScreen> {
         photoUrl: downloadUrl,
         timestamp: FieldValue.serverTimestamp(),
         type: 'image');
-
     var map = Map<String, dynamic>();
-//    map['senderUid'] = _message.senderUid;
-//    map['receiverUid'] = _message.receiverUid;
-//    map['type'] = _message.type;
-//    map['timestamp'] = _message.timestamp;
     map['photoUrl'] = _message.photoUrl;
     map['timestamp'] = Timestamp.now();
     map['senderUid'] = _message.senderUid;
     map['receiverUid'] = _message.receiverUid;
     map['type'] = _message.type;
-
     print("Map : ${map}");
     Firestore.instance
         .collection("messages")
@@ -280,10 +266,6 @@ class _ChatScreenState extends State<ChatScreen> {
         .document(_message.receiverUid)
         .setData(map)
         .then((myFun) {
-//         Map newMap = new Map<String , Object>();
-//         newMap['message'] ='hello';
-//         newMap['hello'] = 'world';
-
       Firestore.instance
           .collection("messages")
           .document(_message.senderUid)
@@ -294,6 +276,7 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  //Upload Document
   void uploadDocumentToDb(String downloadUrl) {
     _message = Message.withoutMessage(
         receiverUid: widget.receiverUid,
@@ -303,10 +286,7 @@ class _ChatScreenState extends State<ChatScreen> {
         type: 'doc');
 
     var map = Map<String, dynamic>();
-//    map['senderUid'] = _message.senderUid;
-//    map['receiverUid'] = _message.receiverUid;
-//    map['type'] = _message.type;
-//    map['timestamp'] = _message.timestamp;
+
     map['photoUrl'] = _message.photoUrl;
     map['timestamp'] = Timestamp.now();
     map['senderUid'] = _message.senderUid;
@@ -321,10 +301,6 @@ class _ChatScreenState extends State<ChatScreen> {
         .document(_message.receiverUid)
         .setData(map)
         .then((myFun) {
-//         Map newMap = new Map<String , Object>();
-//         newMap['message'] ='hello';
-//         newMap['hello'] = 'world';
-
       Firestore.instance
           .collection("messages")
           .document(_message.senderUid)
@@ -334,7 +310,7 @@ class _ChatScreenState extends State<ChatScreen> {
           .add(map);
     });
   }
-
+//Send Normal Text Message
   void sendMessage() async {
     print("Inside send message");
     var text = _messageController.text;
@@ -352,23 +328,26 @@ class _ChatScreenState extends State<ChatScreen> {
     addMessageToDb(_message);
   }
 
+  //Get user Uid
   Future<FirebaseUser> getUID() async {
     FirebaseUser user = await _firebaseAuth.currentUser();
     return user;
   }
-
+//Get Sender Profile pHoto
   Future<DocumentSnapshot> getSenderPhotoUrl(String uid) {
     var senderDocumentSnapshot =
         Firestore.instance.collection('Lawyers').document(uid).get();
     return senderDocumentSnapshot;
   }
 
+  //Get Receiver Photo
   Future<DocumentSnapshot> getReceiverPhotoUrl(String uid) {
     var receiverDocumentSnapshot =
         Firestore.instance.collection('Users').document(uid).get();
     return receiverDocumentSnapshot;
   }
 
+  //List Of CHats
   Widget ChatMessagesListWidget() {
 
     print("SENDERUID : $_senderuid");

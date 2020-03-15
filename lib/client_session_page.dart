@@ -13,12 +13,15 @@ class Session_Page extends StatefulWidget {
 }
 
 class _Session_PageState extends State<Session_Page> {
+
+  //Variables
   final primary = Constant.appColor;
   final secondary = Constant.appColor;
   final databaseReference = Firestore.instance;
   final List<DocumentSnapshot> LawyerList = [
   ];
 
+  //Onstart to get Data
   @override
   void initState() {
     getData();
@@ -26,7 +29,7 @@ class _Session_PageState extends State<Session_Page> {
     super.initState();
   }
 
-
+//Basic Structure of Screen
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,6 +96,8 @@ class _Session_PageState extends State<Session_Page> {
     );
   }
 
+
+  //List Of Sessions
   Widget buildList(BuildContext context, int index) {
     return Container(
       decoration: BoxDecoration(
@@ -200,7 +205,7 @@ class _Session_PageState extends State<Session_Page> {
     );
   }
 
-
+//get Data from Database
   void getData() async {
     String uId = (await FirebaseAuth.instance.currentUser()).uid;
     databaseReference
@@ -213,6 +218,7 @@ class _Session_PageState extends State<Session_Page> {
     });
   }
 
+  //Send Session To chats
   void saveSession(DocumentSnapshot sessionShot ,int index) {
     Firestore.instance
         .collection('start_chat')
@@ -222,7 +228,7 @@ class _Session_PageState extends State<Session_Page> {
     });
   }
 
-
+//Delete data from session
   void deleteData(String documentId, int index) {
     try {
       databaseReference

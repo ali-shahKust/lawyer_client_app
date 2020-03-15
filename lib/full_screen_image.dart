@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+//This Class will be used to check image in full Screen
 class FullScreenImage extends StatefulWidget {
 
   String photoUrl;

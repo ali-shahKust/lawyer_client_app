@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lawyer_client_app/client_login_page.dart';
 import 'package:lawyer_client_app/constant.dart';
-import 'package:lawyer_client_app/homepage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 
@@ -15,6 +14,7 @@ class Client_Signup extends StatefulWidget {
 
 class _Client_SignupState extends State<Client_Signup> {
 
+  //Variables
   String _email, _password,_name;
   final databaseReference = Firestore.instance;
   ProgressDialog pr;
@@ -23,6 +23,7 @@ class _Client_SignupState extends State<Client_Signup> {
   final _namecontroller = TextEditingController();
   final _liccontroller = TextEditingController();
 
+  //Basic Structure Of Program
   @override
   Widget build(BuildContext context) {
 
@@ -241,8 +242,10 @@ class _Client_SignupState extends State<Client_Signup> {
     );
   }
 
-  void signUp() async {
 
+  //Function will called On sign up Button
+  void signUp() async {
+//getting Text From TextField
     _email = _emailcontroller.text;
     _password = _passwordcontroller.text;
     _name = _namecontroller.text;
@@ -264,6 +267,8 @@ class _Client_SignupState extends State<Client_Signup> {
               color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600)
       );
       await pr.show();
+
+      //Create user And check Validations
       await FirebaseAuth.instance.createUserWithEmailAndPassword(email: _email, password: _password);
 
       String mUid = (await FirebaseAuth.instance.currentUser()).uid;
@@ -279,9 +284,6 @@ class _Client_SignupState extends State<Client_Signup> {
       pr.hide().then((isHidden) {
         print(isHidden);
       });
-
-//        Firestore.instance.collection('users').document()
-//            .setData({ 'user_email': _email, 'user_password': _password , 'user_name' : _name});
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Profile_Setting()));
     }catch(e){
 

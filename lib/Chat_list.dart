@@ -13,6 +13,8 @@ class Chat_List extends StatefulWidget {
 }
 
 class _Chat_ListState extends State<Chat_List> {
+
+  //variables
   final primary =Constant.appColor;
   final secondary = Constant.appColor;
   final databaseReference = Firestore.instance;
@@ -27,6 +29,7 @@ class _Chat_ListState extends State<Chat_List> {
     getData();
     super.initState();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +77,7 @@ class _Chat_ListState extends State<Chat_List> {
       ),
     );
   }
-
+//List Of Chats
   Widget buildList(BuildContext context, int index) {
     return Container(
       decoration: BoxDecoration(
@@ -178,7 +181,7 @@ class _Chat_ListState extends State<Chat_List> {
       ),
     );
   }
-
+//Getting data From Firebase
   void getData() async {
     String uId = (await FirebaseAuth.instance.currentUser()).uid;
     databaseReference
