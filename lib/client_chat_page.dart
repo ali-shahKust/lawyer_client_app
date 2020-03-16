@@ -14,6 +14,7 @@ import 'full_screen_image.dart';
 import 'models/message.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:open_file/open_file.dart';
+import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 class ChatScreen extends StatefulWidget {
 
   //Variables For Receive profile
@@ -47,7 +48,7 @@ class _ChatScreenState extends State<ChatScreen> {
   StorageReference _storageReference;
   TextEditingController _messageController;
   final String path='';
-
+  bool isChecked = false;
 
   //On start this function will be called
   @override
@@ -115,7 +116,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.name),
+          //leading:
         ),
         body: Form(
           key: _formKey,

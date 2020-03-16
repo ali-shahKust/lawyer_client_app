@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lawyer_client_app/constant.dart';
+import 'package:lawyer_client_app/main.dart';
+import 'package:lite_rolling_switch/lite_rolling_switch.dart';
 
 import 'client_chat_page.dart';
 
@@ -19,6 +21,7 @@ class _Chat_ListState extends State<Chat_List> {
   final secondary = Constant.appColor;
   final databaseReference = Firestore.instance;
   String dId='';
+  bool isChecked;
 
   final List<DocumentSnapshot> LawyerList = [
   ];
@@ -27,12 +30,15 @@ class _Chat_ListState extends State<Chat_List> {
   void initState() {
     // TODO: implement initState
     getData();
+
     super.initState();
   }
 
 
   @override
   Widget build(BuildContext context) {
+
+    print('abc');
     return Scaffold(
       backgroundColor: Color(0xfff0f0f0),
       body: SingleChildScrollView(
@@ -79,6 +85,7 @@ class _Chat_ListState extends State<Chat_List> {
   }
 //List Of Chats
   Widget buildList(BuildContext context, int index) {
+    isChecked =LawyerList[index].data['chat_status'];
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
@@ -156,23 +163,52 @@ class _Chat_ListState extends State<Chat_List> {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                           color: Constant.appColor),
-                      child: FlatButton(
-                        child: Text(
-                          "Start Chat",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 18),
-                        ),
-                        onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder:(context) => ChatScreen(
-                              name: LawyerList[index].data['username'],
-                              photoUrl: LawyerList[index].data['user_dp'],
-                              receiverUid:
-                              LawyerList[index].data['client_uid']
-                          )));
-                        },
+                      child: Row( 
+                        children: <Widget>[
+                          Expanded(
+
+                            // ignore: unrelated_type_equality_checks
+                            child: isChecked== false?Container():FlatButton(
+                              child: Text(
+                                "Start Chat",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 18),
+                              ),
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder:(context) => ChatScreen(
+                                    name: LawyerList[index].data['username'],
+                                    photoUrl: LawyerList[index].data['user_dp'],
+                                    receiverUid:
+                                    LawyerList[index].data['client_uid']
+                                )));
+                              },
+                            ),
+                          ),
+                          SizedBox(width: 15,),
+                          Expanded( 
+                            child: LiteRollingSwitch(
+                              //initial value
+                              value: isChecked,
+                              textOn: 'Active',
+                              textOff: 'InActive',
+                              colorOn: Colors.greenAccent[700],
+                              colorOff: Colors.redAccent[700],
+                              textSize: 8.0,
+                              onChanged: (bool state) {
+
+                                createRecord(state,LawyerList[index].documentID);
+                                isChecked = state;
+                                LawyerList[index].data['chat_status'] = isChecked;
+
+                                print('Current State Of is checked is $isChecked');
+                              },
+                            ),
+                          ),
+                        ],
                       ),
+
                     )),
               ],
             ),
@@ -188,9 +224,26 @@ class _Chat_ListState extends State<Chat_List> {
         .collection("start_chat").where('lawyer_uid', isEqualTo: uId)
         .getDocuments()
         .then((QuerySnapshot snapshot) {
-      snapshot.documents.forEach((f) => LawyerList.add(f));
+      snapshot.documents.forEach((f) {
+        LawyerList.add(f);
+    setState(() {
 
-      setState(() {});
+    });
+      });
+
+    });
+  }
+
+  //Change Status
+  void createRecord(bool state, String documentID) async {
+    Map mMap = new Map<String, Object>();
+    mMap['chat_status']= state;
+    String mUid = (await FirebaseAuth.instance.currentUser()).uid;
+    //Firestore
+    await databaseReference.collection("start_chat").document(documentID).setData(
+    mMap, merge: true);
+    setState(() {
+
     });
   }
 
