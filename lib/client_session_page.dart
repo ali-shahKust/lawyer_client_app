@@ -105,7 +105,7 @@ class _Session_PageState extends State<Session_Page> {
         color: Colors.white,
       ),
       width: double.infinity,
-      height: 200,
+      height: 230,
       margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       child: Row(
@@ -162,9 +162,11 @@ class _Session_PageState extends State<Session_Page> {
                     SizedBox(
                       width: 5,
                     ),
-                    Text(LawyerList[index]['description'],
-                        style: TextStyle(
-                            color: primary, fontSize: 13, letterSpacing: .3)),
+                    Flexible(
+                      child: Text(LawyerList[index]['description'],
+                          style: TextStyle(
+                              color: primary, fontSize: 13, letterSpacing: .3)),
+                    ),
                   ],
                 ),
                 Row(
