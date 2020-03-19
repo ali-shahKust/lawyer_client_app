@@ -168,7 +168,7 @@ class _Chat_ListState extends State<Chat_List> {
                           Expanded(
 
                             // ignore: unrelated_type_equality_checks
-                            child: isChecked== false?Container():FlatButton(
+                            child: LawyerList[index].data['chat_status']== false?Container():FlatButton(
                               child: Text(
                                 "Start Chat",
                                 style: TextStyle(
